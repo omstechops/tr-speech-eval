@@ -18,11 +18,17 @@ classifiers = [
     "Natural Language :: Turkish",
     "Typing :: Typed",
 ]
-# Standard library only. The generation step needs an API client; that
-# dependency is not added until the study owner approves it.
+# Standard library only, deliberately. The blinding and manifest modules are
+# the reusable part of this package and must not drag a platform-specific
+# machine-learning stack in behind them.
 dependencies = []
 
 [project.optional-dependencies]
+# Running the two post-editing systems.
+api = ["anthropic>=1,<2"]
+# Producing the raw ASR transcripts. Apple Silicon only; this is why it is not
+# a core dependency.
+asr = ["mlx-whisper"]
 dev = [
     "pytest>=8.0",
     "ruff>=0.6",
