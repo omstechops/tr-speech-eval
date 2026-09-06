@@ -93,9 +93,12 @@ variable for section 8 — and Project B needs clean source material for its
 acoustic conditions regardless. If they are ready before item selection, they
 enter as an additional source; if not, study 001 proceeds without them.
 
-- **Distinct recordings (decided):** 100, contributing 3 items each. See the
-  clustering paragraph below — the recording count and the items-per-recording
-  count are one decision, and licence checking is per recording.
+- **Distinct recordings (decided):** 3 items per recording throughout. The study
+  takes 100 recordings; the rubric-derivation set takes 10 more and the pilot 7-10
+  more, disjoint from the study and from each other. The corpus must therefore
+  supply at least **120 distinct recordings** for the 360-item budget below.
+  Licence checking is per recording, which makes the recording count — not the
+  item count — the real collection cost.
 - **ASR system producing the raw output (decided):** Whisper `large-v3-turbo`,
   identical for every item, with the exact checkpoint recorded in the run
   manifest. Which ASR is used is not this study's question — the comparison is
@@ -117,6 +120,13 @@ enter as an additional source; if not, study 001 proceeds without them.
 
 The rubric-derivation set cannot double as the pilot: those items shaped the
 rubric, so ratings on them are optimistically consistent with it.
+
+**Collection order.** The first 10 recordings are collected and run end to end —
+download, segmentation, ASR, both systems, blinded sheet — before the remaining
+110 are gathered. A pipeline fault then costs 10 recordings to discover instead
+of 120. Those 10 recordings yield exactly the 30 items the rubric-derivation set
+needs, and that set is burned in any case, so the shakedown consumes nothing the
+study could otherwise have used.
 
 **Clustering.** If more than one item comes from the same recording or speaker,
 the unit of analysis is the recording, not the item. Number of items per
