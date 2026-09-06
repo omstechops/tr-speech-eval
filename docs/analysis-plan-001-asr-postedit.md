@@ -93,13 +93,19 @@ variable for section 8 — and Project B needs clean source material for its
 acoustic conditions regardless. If they are ready before item selection, they
 enter as an additional source; if not, study 001 proceeds without them.
 
-- **Distinct recordings or speakers:** `[DECIDE]` — see the clustering paragraph
-  below; this number and the items-per-recording number are one decision.
-- **ASR system producing the raw output:** `[DECIDE: model + version]`, identical
-  for every item and recorded in the run manifest. Which ASR is used is not this
-  study's question — the comparison is between post-editors, not recognisers —
-  but it must be fixed. If it varies, post-editing difficulty varies with it and
-  enters the analysis as noise inside the primary comparison.
+- **Distinct recordings (decided):** 100, contributing 3 items each. See the
+  clustering paragraph below — the recording count and the items-per-recording
+  count are one decision, and licence checking is per recording.
+- **ASR system producing the raw output (decided):** Whisper `large-v3-turbo`,
+  identical for every item, with the exact checkpoint recorded in the run
+  manifest. Which ASR is used is not this study's question — the comparison is
+  between post-editors, not recognisers — but it must be fixed. If it varies,
+  post-editing difficulty varies with it and enters the analysis as noise inside
+  the primary comparison. The turbo checkpoint is chosen over `large-v3` for
+  headroom: output clean enough to need no post-editing would floor both systems
+  and leave nothing for the comparison to separate. Whether the headroom is in
+  fact adequate is a listening judgement made on the rubric-derivation set,
+  before the study runs.
 
 **Item budget — the corpus must supply at least 360 items:**
 
@@ -114,8 +120,17 @@ rubric, so ratings on them are optimistically consistent with it.
 
 **Clustering.** If more than one item comes from the same recording or speaker,
 the unit of analysis is the recording, not the item. Number of items per
-recording: `[DECIDE]`. Clustering is not avoided, it is carried into section 7
-as cluster-robust resampling — ignoring it inflates significance.
+recording: 3. Clustering is not avoided, it is carried into section 7 as
+cluster-robust resampling — ignoring it inflates significance.
+
+**Cluster unit:** the recording. In a single-speaker talk the recording and the
+speaker coincide. In a multi-speaker episode the speaker is nested inside the
+episode, so every item is drawn from a single speaker and the cluster is the
+episode — the larger unit, which is the conservative choice.
+
+At 3 items per recording the design effect is `1 + 2ρ`, so the effective sample
+size is `300 / (1 + 2ρ)`: 250 items at ρ = 0.1, 214 at ρ = 0.2. ρ is not known
+before the pilot, which is why the pilot must itself be clustered (section 9).
 
 **Selection:** items are drawn by `[DECIDE: sampling rule]` before any model is
 run. No item is dropped after its outputs are seen.
@@ -260,9 +275,11 @@ scale of section 4.1, where magnitude exists to rank.
 | Wilcoxon signed-rank | 5-level graded preference | above, plus symmetry of the difference distribution for a location claim |
 | Cluster bootstrap / cluster permutation over recordings | either | clusters independent; correct clustering unit identified |
 
-**Test:** `[DECIDE]`. If items are clustered (section 3), the independence
-assumption of the exact binomial fails and the cluster-robust variant is
-required — resampling recordings, not items.
+**Test:** `[DECIDE]`. Items **are** clustered — 3 per recording, section 3 — so
+the independence assumption of the exact binomial does not hold and the
+cluster-robust variant is required: resampling recordings, not items. This
+constrains the choice but does not make it; the candidate above is still to be
+selected with its assumptions listed.
 
 Assumption checks, run before the test and recorded either way:
 
@@ -314,10 +331,11 @@ is inverted: **what is the smallest difference detectable at n = 300?**
 
 Pilot, run before the study and excluded from every analysis:
 
-- Pilot size `[DECIDE: 20-30 items]`, rated under the final frozen rubric.
+- Pilot size `[DECIDE: 20-30 items]`, rated under the final frozen rubric, and
+  drawn at 3 items per recording like the study itself. A pilot of one item per
+  recording cannot estimate ρ at all, and ρ is what the design effect turns on.
 - Recorded: tie rate on the preference tier, split among non-tied items,
-  spread of per-item differences on the absolute tier, and the clustering
-  structure of the pilot items.
+  spread of per-item differences on the absolute tier, and ρ within recordings.
 - Output: a minimum detectable effect curve over n, computed with `evalstat`.
 
 The tie rate is the quantity that matters most: ties carry no information, so
