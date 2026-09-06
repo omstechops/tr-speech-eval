@@ -74,31 +74,60 @@ Read-aloud short sentences lack disfluency, repetition and natural sentence
 boundaries, so they exercise only half of the post-editing task. The study
 corpus is natural, unscripted speech.
 
-**Study corpus (decided): Turkish podcast and TEDx speech.** Natural,
-unprepared, long-form, with usable recording quality and subject matter that is
-not politically charged. Licence status is checked per source before any item is
-drawn from it, and the check is recorded.
+**Study corpus (decided): own recordings.** 40 speakers, each recorded for at
+least 7 minutes of unprepared Turkish speech, contributing 3 items. Holding the
+rights removes the licence question entirely, and it removes half of the
+exclusion rules with it: there is no music bed, no jingle, no applause and no
+second speaker to screen for, because the recording is made without them.
+Speaker metadata is defined rather than inferred, which hands section 8 a
+subgroup variable that found material cannot supply, and Project B needs clean
+source material for its acoustic conditions regardless — the recordings are made
+once and serve both projects.
 
-TBMM transcripts were rejected despite being the best content fit — natural,
-unprepared, speaker-diverse, and already carrying a reference transcript.
-Parliamentary material is dense in proper nouns and institution names, and the
-two systems may behave differently on political content. That is a variable this
-study does not want to measure and cannot control, and it would sit inside the
-primary comparison rather than beside it.
+**TEDx was eliminated on licence grounds, not editorial ones.** TED publishes
+TED and TEDx talks under CC BY-NC-ND 4.0, and the binding restriction is ND, not
+NC. The usage policy states that "no derivative works are permitted so you cannot
+edit, remix, create, modify or alter the form of the TED Talks in any way", that
+one "may not edit TED Talks, or alter them in any way, including by sharing
+truncated versions or clips", and that "copyright on the transcripts is owned by
+TED". This study's central operation on a recording is to cut clips from it,
+derive a transcript, have two systems rewrite that transcript, and publish the
+material so the result can be reproduced — which is that prohibited set, item by
+item. The conflict is sharpest exactly where the study's value lies. A CC BY
+marking on a TEDx upload on a video platform is not a safe basis either: the
+local organiser may not hold the right to relicense.
 
-**Own recordings accumulate in parallel and do not gate this study:** 30-40
-speakers × 2-3 minutes of unprepared speech. They carry no licence question, they
-let speaker metadata be defined rather than inferred — a ready-made subgroup
-variable for section 8 — and Project B needs clean source material for its
-acoustic conditions regardless. If they are ready before item selection, they
-enter as an additional source; if not, study 001 proceeds without them.
+TBMM transcripts were rejected earlier despite being the best content fit —
+natural, unprepared, speaker-diverse, and already carrying a reference
+transcript. Parliamentary material is dense in proper nouns and institution
+names, and the two systems may behave differently on political content. That is
+a variable this study does not want to measure and cannot control, and it would
+sit inside the primary comparison rather than beside it.
 
-- **Distinct recordings (decided):** 3 items per recording throughout. The study
-  takes 100 recordings; the rubric-derivation set takes 10 more and the pilot 7-10
-  more, disjoint from the study and from each other. The corpus must therefore
-  supply at least **120 distinct recordings** for the 360-item budget below.
-  Licence checking is per recording, which makes the recording count — not the
-  item count — the real collection cost.
+**Podcast material under written permission is a secondary arm, not a
+prerequisite.** Recordings may be added if a rights holder grants permission
+covering all four of: segmentation, derivation of transcripts, publication of
+those derived transcripts, and reproduction by third parties. Permission that
+covers use but not redistribution is of no use to a study whose point is
+reproducibility. Where such material is added, the source is recorded per item in
+the manifest as a subgroup variable — a difference between own recordings and
+podcast material would otherwise sit unlabelled inside the primary comparison.
+
+**Consent is recorded in two tiers, per speaker, in the manifest:**
+
+1. transcripts and derived text may be published;
+2. the audio may be published as well.
+
+A speaker who declines the second tier still supplies items under the first. A
+single-tier form would cost speakers, and speakers are the scarcest resource in
+this design — section 9 shows the effective sample size bounded by their number
+rather than by the item count.
+
+- **Speakers and items (decided):** 40 speakers × 3 items = 120 study items. The
+  rubric-derivation set takes 10 further speakers and the pilot 7-10 more,
+  disjoint from the study and from each other, so the collection target is **at
+  least 57 speakers** at 7+ minutes each. The speaker count, not the item count,
+  is both the collection cost and the statistical ceiling.
 - **ASR system producing the raw output (decided):** Whisper `large-v3-turbo`,
   identical for every item, with the exact checkpoint recorded in the run
   manifest. Which ASR is used is not this study's question — the comparison is
@@ -110,23 +139,51 @@ enter as an additional source; if not, study 001 proceeds without them.
   fact adequate is a listening judgement made on the rubric-derivation set,
   before the study runs.
 
-**Item budget — the corpus must supply at least 360 items:**
+**Item budget — at least 170 items from at least 57 speakers:**
 
 | Set | Size | Used for | Enters analysis |
 |---|---|---|---|
 | Rubric derivation | 30 | deriving the anchors in 4.2 | no — burned |
 | Pilot | `[DECIDE: 20-30]` | variance and tie-rate estimates for section 9 | no — burned |
-| Study | 300 | S1 and S2 | yes |
+| Study | 120 | S1 and S2 | yes |
 
 The rubric-derivation set cannot double as the pilot: those items shaped the
 rubric, so ratings on them are optimistically consistent with it.
 
-**Collection order.** The first 10 recordings are collected and run end to end —
-download, segmentation, ASR, both systems, blinded sheet — before the remaining
-110 are gathered. A pipeline fault then costs 10 recordings to discover instead
-of 120. Those 10 recordings yield exactly the 30 items the rubric-derivation set
-needs, and that set is burned in any case, so the shakedown consumes nothing the
+**Collection order.** The first 10 speakers are recorded and run end to end —
+segmentation, ASR, both systems, blinded sheet — before the remaining 47 are
+recorded. A pipeline fault then costs 10 speakers to discover instead of 57.
+Those 10 speakers yield exactly the 30 items the rubric-derivation set needs, and that set is burned in any case, so the shakedown consumes nothing the
 study could otherwise have used.
+
+**Segment construction (decided).** Every item is a 30-second window of one
+recording.
+
+- **Length: 30 seconds**, roughly 60-75 words of natural Turkish. Shorter windows
+  were rejected. At 15-20 seconds the material stops exercising suffix agreement
+  across clauses, sentence-boundary restoration and reference resolution — most
+  of the Turkish-specific categories in 4.2. Shrinking the window to fit the
+  rating budget would not have measured the task cheaply; it would have measured
+  a smaller task.
+- **Offsets: seeded random, restricted to speech regions found by voice activity
+  detection.** The seed goes in the run manifest, so segmentation is
+  reproducible. Minimum proportion of speech inside a candidate window:
+  `[DECIDE: threshold]`, pre-registered — a threshold chosen after seeing which
+  windows it rejects is a selection rule, not a filter.
+- **Separation: one segment per third of the recording, at least 90 seconds
+  apart.** This is where the 7-minute minimum comes from: three 30-second windows
+  with 90-second gaps do not fit below about 5 minutes, and 7 leaves room for
+  candidate windows that the speech-ratio threshold rejects. The separation is
+  not cosmetic. Adjacent segments share topic, acoustic state and speaker energy,
+  which raises the within-recording correlation ρ, and ρ is what the design
+  effect in section 9 turns on.
+- **Edges: cut at the clock offset, then drop the leading and trailing partial
+  word from the ASR output** before it reaches either system, uniformly for every
+  item. Snapping the cut to the nearest pause instead would hand the post-editor a
+  sentence boundary and pre-solve part of what 4.2 is trying to measure; cutting
+  at the clock and leaving the edge would put a truncated word in every item as a
+  systematic artefact. This is the middle path: the boundary work stays, the
+  artefact does not.
 
 **Clustering.** If more than one item comes from the same recording or speaker,
 the unit of analysis is the recording, not the item. Number of items per
@@ -139,7 +196,7 @@ episode, so every item is drawn from a single speaker and the cluster is the
 episode — the larger unit, which is the conservative choice.
 
 At 3 items per recording the design effect is `1 + 2ρ`, so the effective sample
-size is `300 / (1 + 2ρ)`: 250 items at ρ = 0.1, 214 at ρ = 0.2. ρ is not known
+size is `120 / (1 + 2ρ)`: 100 items at ρ = 0.1, 86 at ρ = 0.2. ρ is not known
 before the pilot, which is why the pilot must itself be clustered (section 9).
 
 **Selection:** items are drawn by `[DECIDE: sampling rule]` before any model is
@@ -149,14 +206,18 @@ run. No item is dropped after its outputs are seen.
 
 ### 4.1 Two-tier measurement
 
-The absolute scale is not applied to all 600 outputs. Rating capacity is the
+The absolute scale is not applied to all 240 outputs. Rating capacity is a
 binding constraint on this study and spending it entirely on a noisy measure is
-the most likely way for it to die unfinished.
+one of the likelier ways for it to die unfinished.
 
 | Tier | Instrument | Coverage | Est. owner time |
 |---|---|---|---|
-| **Primary** | paired preference: A better / equal / B better | all 300 items | ~3-4 h |
-| **Secondary** | absolute 1-5 rating, rubric-anchored | 100-item subset, both systems | ~5 h |
+| **Primary** | paired preference: A better / equal / B better | all 120 items | ~2-3 h |
+| **Secondary** | absolute 1-5 rating, rubric-anchored | `[DECIDE: subset size]` items, both systems | ~1 h per 40 ratings |
+
+Time estimates assume a 30-second item, roughly 60-75 words per text: a
+preference judgement reads the raw ASR plus both outputs, an absolute rating
+reads the raw ASR plus one output.
 
 Rationale for making preference primary: on a 5-point absolute scale the
 decision between 3 and 4 is unstable and contributes noise, while "which of
@@ -172,8 +233,15 @@ preference data cannot answer. The subset preserves that capability.
 better / B much better). This choice changes which test is available; see
 section 7.1.
 
-**Subset selection:** the 100 absolute-rated items are drawn at random before
-rating begins, not chosen while rating.
+**Subset size is now an open decision, and it was not before.** At 300 study
+items a 100-item absolute subset covered a third of the study, and the two tiers
+were plainly separate instruments. At 120 items that same 100 would cover 83% of
+the study, the tiers would nearly coincide, and the two-tier design would stop
+being a way of spending capacity and become duplication. Section 6's secondary
+outcome and section 7.3's absolute agreement estimate both rest on this number.
+
+**Subset selection:** the absolute-rated items are drawn at random before rating
+begins, not chosen while rating.
 
 ### 4.2 Rubric derivation — do not invent the anchors
 
@@ -235,15 +303,17 @@ measurement; no statistical method repairs its absence.
 
 | Rater | Preference tier | Absolute tier |
 |---|---|---|
-| Owner | 300 items | 100 items × 2 systems |
+| Owner | 120 items | `[DECIDE]` subset × 2 systems |
 | Second human | `[DECIDE]` items | `[DECIDE]` items |
-| Judge | 300 items × 2 orders | 100 items × 2 systems |
+| Judge | 120 items × 2 orders | same subset × 2 systems |
 
 **Open gap in the current design:** the second human was specified only for the
 absolute scale, but the *primary* outcome is now preference — which would leave
 the primary measure with no inter-rater agreement estimate at all. The second
-rater must cover a preference subset. Suggested split, to be confirmed:
-preference on 100 items (~1 h) plus absolute on the same 100 (~1.7 h).
+rater must cover a preference subset. The earlier suggestion of 100 items no
+longer works: at 120 study items that is 83% of the study and not a subset in
+any useful sense. The size is `[DECIDE]`, with the constraint that an agreement
+estimate computed on very few items carries an interval too wide to act on.
 
 The judge receives the same rubric text given to the humans, so all three raters
 are measuring the same construct.
@@ -251,7 +321,7 @@ are measuring the same construct.
 ## 5. Primary outcome
 
 **Primary comparison:** the owner's paired preference between System B and
-System A across the 300 study items. One comparison, declared primary in
+System A across the 120 study items. One comparison, declared primary in
 advance. Reported as: tie rate, and the proportion of non-tied items favouring
 System B with a confidence interval.
 
@@ -336,23 +406,46 @@ Declared here so they cannot be invented later. None supports a claim alone.
 
 ## 9. Sample size and minimum detectable effect
 
-n is fixed by rating capacity, not by a power calculation, so the power question
-is inverted: **what is the smallest difference detectable at n = 300?**
+n is fixed by collection and rating capacity, not by a power calculation, so the
+power question is inverted: **what is the smallest difference detectable at
+n = 120, clustered in 40 speakers?**
+
+**Why the effort goes to speakers rather than to items.** With k speakers and m
+items each, the effective sample size is
+
+```
+n_eff = k·m / (1 + (m − 1)ρ)
+```
+
+This rises with m, but is bounded above by `k / ρ` however large m becomes. At
+k = 40 and ρ = 0.2 that ceiling is 200. Raising items per speaker from 3 to 15
+multiplies the rating load fivefold and moves the effective sample from 86 to
+158 — and it can never reach 200. Speakers buy statistical power; items past the
+first few buy mostly rating work. Recruitment effort is therefore spent on
+speakers, and the item count stays at 3.
+
+**Expected effective n: 86-100.** At k = 40, m = 3: 100 items at ρ = 0.1, 86 at
+ρ = 0.2. This band is written down before any data exists, and the minimum
+detectable effect curve is built on it rather than on the nominal 120.
 
 Pilot, run before the study and excluded from every analysis:
 
 - Pilot size `[DECIDE: 20-30 items]`, rated under the final frozen rubric, and
-  drawn at 3 items per recording like the study itself. A pilot of one item per
-  recording cannot estimate ρ at all, and ρ is what the design effect turns on.
+  drawn at 3 items per speaker like the study itself. A pilot of one item per
+  speaker cannot estimate ρ at all, and ρ is what the design effect turns on.
 - Recorded: tie rate on the preference tier, split among non-tied items,
   spread of per-item differences on the absolute tier, and ρ within recordings.
 - Output: a minimum detectable effect curve over n, computed with `evalstat`.
 
-The tie rate is the quantity that matters most: ties carry no information, so
-the effective sample size is the number of non-tied items, not 300.
+The tie rate is the quantity that matters most, and its effect compounds with
+the design effect rather than replacing it: ties carry no information, so the
+information actually available is the non-tied fraction of an already clustered
+86-100, not of 120. A 40% tie rate at ρ = 0.2 would leave roughly 50 informative
+items. That figure is an illustration, not a prediction — the pilot measures the
+tie rate, and this plan does not assume one.
 
-If the MDE at n = 300 exceeds the section 5 threshold, the study is underpowered
-for its own question. That is reported as the finding, not repaired by adding
+If the MDE at the expected effective n exceeds the section 5 threshold, the study
+is underpowered for its own question. That is reported as the finding, not repaired by adding
 items afterwards.
 
 ## 10. Stopping rule and pre-written conclusions
@@ -364,9 +457,9 @@ Both write-ups are titled before the data exists, so that neither outcome can be
 retrofitted into the other:
 
 - **If the difference is detected:** `[DECIDE: headline]`
-- **If it is not:** `[DECIDE: headline]` — e.g. a finding that n = 300, a typical
-  evaluation size, cannot separate two systems whose gap is widely assumed to be
-  obvious. Under Project A's thesis this is a result, not a failure.
+- **If it is not:** `[DECIDE: headline]` — e.g. a finding that a 120-item study
+  with an effective sample near 90, a size typical of real evaluation practice,
+  cannot separate two systems whose gap is widely assumed to be obvious. Under Project A's thesis this is a result, not a failure.
 
 ## 11. Freeze record
 
