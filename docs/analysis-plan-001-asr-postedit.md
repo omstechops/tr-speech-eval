@@ -1,4 +1,5 @@
-# Analysis Plan 001 — Turkish ASR Post-Editing: Haiku 4.5 vs Sonnet 5
+# Analysis Plan 001 — Turkish ASR Post-Editing:
+## System A (Haiku 4.5) vs System B (Sonnet 5), default configurations
 
 **Status:** DRAFT — not frozen. Blanks marked `[DECIDE]` must be filled before
 any study data is collected. The freeze tag in section 11 is not created until
@@ -13,8 +14,8 @@ it is a selection.
 
 ## 1. Question
 
-Two models from the same family, with a known but modest expected quality gap,
-convert raw Turkish ASR output into readable text. The small gap is the point,
+Two deployable systems, built on models from the same family with a known but
+modest expected quality gap, convert raw Turkish ASR output into readable text. The small gap is the point,
 not an inconvenience: it is the regime where evaluation practice usually fails.
 
 - **S1 (comparison):** Is the gap between Sonnet 5 and Haiku 4.5 detectable at a
@@ -28,19 +29,42 @@ regardless of its p-value.
 
 ## 2. Systems under comparison
 
+**Estimand — what is being compared.** Two deployable systems, not two model
+architectures. Sonnet 5 rejects `temperature`, `top_p` and `top_k`, and its
+adaptive thinking cannot be turned off; Haiku 4.5 accepts sampling parameters
+and does not think unless given a thinking budget. The two configurations
+therefore cannot be equalised with this model pair, and a design that insisted
+on equalising them would have to swap in a pair nobody deploys. What is measured
+here is the quality difference a person deploying these two systems today, at
+their default settings, would see. The configuration difference — adaptive
+thinking on B, none on A — is part of the object being measured, and is declared
+rather than hidden.
+
+The comparison unit is a system, so no conclusion of the form "B is better
+because it is the larger model" is available from this design.
+
 | Role | System | Settings |
 |---|---|---|
-| System A | `claude-haiku-4-5-20251001` | temperature `[DECIDE]`, fixed for all items |
-| System B | `claude-sonnet-5` | temperature `[DECIDE]`, byte-identical prompt to A |
-| Judge | `[DECIDE: out-of-family model + exact version]` | temperature 0 |
+| System A | Haiku 4.5, default configuration | no sampling parameter sent; no thinking budget |
+| System B | Sonnet 5, default configuration | no sampling parameter sent; adaptive thinking, not disableable |
+| Judge | `[DECIDE: out-of-family model]` | `[DECIDE: settings]`, recorded in the manifest |
+
+**Model identity is not written from memory.** Exact model ids are read from the
+Models API at run time and copied verbatim into the run manifest, alongside the
+settings actually sent. Six months from now the manifest is the only record of
+which version produced the data.
 
 Both systems receive the identical prompt and the identical input list in the
 identical order, one generation per item. The prompt is committed alongside this
 plan and does not change during the study.
 
-**Run-to-run variance check:** if temperature > 0, re-run System A on
-`[DECIDE: n]` items. The A-vs-A difference is a floor on any A-vs-B difference
-the study can claim.
+**Run-to-run variance check — mandatory, and two-armed.** Neither system is
+deterministic, because neither is given a sampling parameter. Re-run **both**
+systems on `[DECIDE: n]` items and report each system's disagreement with itself
+separately. Adaptive thinking may make B's run-to-run variance visibly larger
+than A's, and in a paired design that asymmetry matters: one side of the pair is
+noisier than the other. If a system's disagreement with itself approaches the
+A-vs-B difference, that is the study's answer, and a strong one.
 
 ## 3. Materials
 
@@ -50,10 +74,32 @@ Read-aloud short sentences lack disfluency, repetition and natural sentence
 boundaries, so they exercise only half of the post-editing task. The study
 corpus is natural, unscripted speech.
 
-- **Study corpus:** `[DECIDE: TBMM transcripts / podcast-TEDx / own recordings]`
-- **Distinct recordings or speakers:** `[DECIDE]`
+**Study corpus (decided): Turkish podcast and TEDx speech.** Natural,
+unprepared, long-form, with usable recording quality and subject matter that is
+not politically charged. Licence status is checked per source before any item is
+drawn from it, and the check is recorded.
+
+TBMM transcripts were rejected despite being the best content fit — natural,
+unprepared, speaker-diverse, and already carrying a reference transcript.
+Parliamentary material is dense in proper nouns and institution names, and the
+two systems may behave differently on political content. That is a variable this
+study does not want to measure and cannot control, and it would sit inside the
+primary comparison rather than beside it.
+
+**Own recordings accumulate in parallel and do not gate this study:** 30-40
+speakers × 2-3 minutes of unprepared speech. They carry no licence question, they
+let speaker metadata be defined rather than inferred — a ready-made subgroup
+variable for section 8 — and Project B needs clean source material for its
+acoustic conditions regardless. If they are ready before item selection, they
+enter as an additional source; if not, study 001 proceeds without them.
+
+- **Distinct recordings or speakers:** `[DECIDE]` — see the clustering paragraph
+  below; this number and the items-per-recording number are one decision.
 - **ASR system producing the raw output:** `[DECIDE: model + version]`, identical
-  for every item.
+  for every item and recorded in the run manifest. Which ASR is used is not this
+  study's question — the comparison is between post-editors, not recognisers —
+  but it must be fixed. If it varies, post-editing difficulty varies with it and
+  enters the analysis as noise inside the primary comparison.
 
 **Item budget — the corpus must supply at least 360 items:**
 
@@ -187,7 +233,8 @@ System B with a confidence interval.
 **Practical significance threshold** `[DECIDE]`: the threshold must now be
 stated in preference units — the smallest preference rate among non-tied items
 that would change a deployment decision — because the primary instrument
-changed. A threshold expressed in rating points no longer applies to the
+changed. Under the section 2 estimand it is a decision about deploying these
+two systems as configured, not about two models held at equal settings. A threshold expressed in rating points no longer applies to the
 primary outcome.
 
 ## 6. Secondary outcome
@@ -290,7 +337,7 @@ retrofitted into the other:
 
 - **If the difference is detected:** `[DECIDE: headline]`
 - **If it is not:** `[DECIDE: headline]` — e.g. a finding that n = 300, a typical
-  evaluation size, cannot separate two models whose gap is widely assumed to be
+  evaluation size, cannot separate two systems whose gap is widely assumed to be
   obvious. Under Project A's thesis this is a result, not a failure.
 
 ## 11. Freeze record
