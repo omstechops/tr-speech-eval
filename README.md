@@ -15,6 +15,11 @@ Blinded data collection for analysis plan 001
   and the key stays closed until every human rating is in.
 - `burned` — append-only ledger of items consumed by rubric derivation and the
   pilot, which cannot enter the study.
+- `segmentation` — turns a recording into the 30-second windows that become
+  items: one per third, at least 90 seconds apart, drawn from a recorded seed and
+  restricted to detected speech. Voice activity detection happens elsewhere; this
+  module consumes speech regions, so the selection rule stays testable and free of
+  a platform-specific dependency.
 - `manifest` — the record of what a run actually used: model ids as read from
   the provider's API, ASR checkpoint, seed, and hashes of the prompt, the item
   list and the burned ledger. A value that could not be read is written as
