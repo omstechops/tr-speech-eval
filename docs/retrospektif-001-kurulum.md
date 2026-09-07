@@ -325,4 +325,10 @@ sonrasında ne olduğunu ayrı bir katman olarak yazar.
   köprü seti boyutu.
 - **Doğrulanacak, ezberden yazılmayacak:** Common Voice dağıtımı Ekim 2025'te
   Mozilla Data Collective'e taşındı; §3.3'ün ısınma malzemesi olarak dayandığı
-  lisans yeniden kaynağından okunmalı.
+  lisans yeniden kaynağından okunmalı. Klonlama elendiği için soru daraldı:
+  yalnızca boru hattı ısınması için kullanılabilir mi.
+
+**Sayaç:** Bugün `[DECIDE]` 26'dan 38'e çıktı — kapanandan çok açıldı ve net yön
+ilk kez **açma** yönünde. Ders: bir tasarım kararı (D4) sadece iş eklemez,
+**bilinmeyen** ekler — ve plan büyürken kod durursa bu görünmez, çünkü büyüyen
+belge ilerleme gibi okunur.

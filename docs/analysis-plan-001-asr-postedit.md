@@ -1145,6 +1145,54 @@ If the MDE at the expected effective n exceeds the section 5 threshold, the stud
 is underpowered for its own question. That is reported as the finding, not repaired by adding
 items afterwards.
 
+### 9.1 The interval this study will report does not cover at 95%
+
+**Measured, not assumed.** `evalstat`'s coverage simulation — 300 datasets at
+k = 40 clusters, m = 3 items each, ρ = 0.2, nominal 95% intervals, Monte Carlo
+standard error about 1.5 points — gives:
+
+| Method | Item-level resampling (naive) | Cluster-level resampling |
+|---|---|---|
+| percentile | 0.887 | **0.927** |
+| basic | 0.890 | **0.933** |
+| bca | 0.883 | **0.923** |
+
+Two readings, and the second is why this belongs in a pre-registration.
+
+The first is the case for clustering at all: naive resampling under-covers by
+roughly six points at ρ = 0.2. That is now a measurement rather than an argument.
+
+The second is that **cluster-robust resampling does not repair it completely at
+this cluster count.** At k = 40 the interval covers about 92-93% of the time, not
+95%. This is not a defect in the method; it is the method's own asymptotics —
+consistency is in the number of *clusters*, and forty is not many — showing up in
+the regime this study actually occupies.
+
+**Reporting format, fixed here.** Every interval this study reports is described
+as:
+
+> a nominal 95% interval whose measured coverage at k = 40 is approximately 93%
+
+not as "a 95% confidence interval" and not as "approximately 95%". The first
+would misstate what was measured; the second would blur a known quantity into a
+hedge. **The point of fixing the wording now is that it is fixed before the
+results exist.** A study that discovers its intervals are optimistic while
+writing up its findings has an incentive it does not have today.
+
+**Consequence for section 9's expected effective n, and a new open decision.**
+The band of 86-100 was derived from the design effect alone. Under-coverage means
+the intervals built on it are narrower than their nominal level, so the band is
+optimistic in a second, separate way: the design effect describes how much
+information the clustering costs, and the coverage shortfall describes how much
+the interval overstates the information that remains. The minimum detectable
+effect curve therefore needs a correction.
+
+`[DECIDE: MDE coverage correction]` — whether the MDE curve is computed against
+the nominal level, against the measured coverage, or reported as a band spanning
+both. Deferred deliberately: the correction depends on ρ and the tie rate, and
+both come from the pilot. It is opened here so that it cannot be quietly skipped
+when the pilot data arrives.
+
 ## 10. Stopping rule and pre-written conclusions
 
 n is fixed in advance. Collection does not stop early, does not continue past n,
