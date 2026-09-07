@@ -9,7 +9,9 @@ description = "Evaluation harness for Turkish speech systems."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "omstechops", email = "325673804+omstechops@users.noreply.github.com" }]
+authors = [
+    { name = "omstechops", email = "325673804+omstechops@users.noreply.github.com" },
+]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Science/Research",
