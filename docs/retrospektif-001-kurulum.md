@@ -1,7 +1,9 @@
 # Kurulum Retrospektifi — 5-6 Eylül 2026
 
 **Kapsam:** `evalstat` ve `tr-speech-eval` projelerinin ilk iki günü. Analiz
-planı 001'in taslaktan §2'si kapanmış hâle gelmesine kadar.
+planı 001'in taslaktan §2'si kapanmış hâle gelmesine kadar. Vaka 10 ve 11
+8 Eylül'de eklendi; kayıt kapatılmadı çünkü ikisi de yeni bilgi taşıyordu —
+biri yeni bir hata sınıfı, diğeri var olan bir sınıfın örüntüye dönüştüğünü.
 
 **Neden tutuluyor:** Bu belge bir ilerleme raporu değil. Bir ölçüm çalışması
 kurulurken yapılan hataların ve onları yakalayan mekanizmaların kaydı. Çalışmanın
@@ -12,17 +14,36 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-Dokuz hata kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
-**Yakalayan mekanizmaya göre gruplandığında dört ayrı sınıf çıkıyor** — ve her
-sınıf yalnızca kendi mekanizmasıyla yakalanabiliyor.
+On bir vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+**Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
+yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
-| Mekanizma | Yakaladığı hata sınıfı | Vaka |
+| Mekanizma | Yakaladığı sınıf | Vaka |
 |---|---|---|
 | Çapraz kontrol (AI → AI) | İç tutarsızlık, matematiksel ilişki hatası | 1, 4 |
 | İnsan düzeltmesi | Niyet okuma hatası, odak kayması | 2 |
-| Uygulamaya geçmek | Uygulanamaz tasarım varsayımı | 6, 8 |
-| Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9 |
-| **Hiçbiri (geç yakalandı)** | **Her iki tarafın ortak kör noktası** | **3, 7** |
+| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11** |
+| Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
+| Hiçbiri (geç yakalandı) | Her iki tarafın ortak kör noktası | 3, 7 |
+| **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
+
+İki şey değişti.
+
+**Birincisi: "uygulamaya geçmek" artık üç vakalı ve örüntü sayılır.** 6, 8 ve 11
+aynı yapıya sahip: bir tasarım varsayımı tasarım turlarında yanlışlanamadı,
+uygulama yoluna girilince yanlışlandı. Üç örnek, tek tek anlatılacak vaka
+olmaktan çıkıp **yöntem hâline geliyor**: bir varsayımı sınamanın en ucuz yolu
+onu tartışmak değil, onu uygulanabilir en küçük adıma dönüştürmek. Vaka 11 ayrıca
+iki mekanizmaya birden ait — kaynağa bakmak *ve* uygulamaya geçmek — çünkü
+sorulacak soruyu uygulama üretti, cevabı kaynak verdi.
+
+**İkincisi: Vaka 10 önceki dokuzun hiçbirine benzemiyor.** Onların hepsi
+"yanlıştı, düzeltildi" idi: yanlış test önerisi, kaçırılan körleme, eskimiş model
+kimliği, okunmamış lisans. Vaka 10'da **yanlış bir şey yok.** Kendi kaydını
+kullanma kararı hâlâ lisans açısından en iyi karar. Terk edilme sebebi hatalı
+olması değil, **pahalı** olması — ve maliyeti karar verilirken görünmüyordu. Bu
+yüzden ayrı satırda: "doğru ama pahalı" bir kararın terk edilmesi, bir hatanın
+düzeltilmesiyle aynı şey değil ve aynı mekanizmayla yakalanmıyor.
 
 Son satır en önemlisi. İki bağımsız AI'ın **aynı anda** kaçırdığı hatalar var.
 Çapraz kontrol bunları çözmüyor.
@@ -141,6 +162,72 @@ lisans ihlali üretecekti.
 doğrulanabilir her karar, karara girmeden önce kaynağından okunur. "Sonra
 kontrol edersin" diye işaretlenen şey kontrol edilmiyor.
 
+### Vaka 10 — Korpus yolunun gerçek maliyeti uygulamada göründü
+**Kim yaptı:** Tasarım (ikisi de onayladı).
+Vaka 9'dan sonra korpus "kendi kayıtlarım" oldu ve bu, lisans açısından
+kusursuz bir karardı: hakları tutuyorsun, ND yok, yeniden dağıtım serbest,
+konuşmacı üstverisi tanımlı. Karar, **kendi seçim kriteri içinde** doğruydu ve o
+kriter lisanstı.
+Görünmeyen şey maliyetin ikinci bileşeniydi: insan denekli kayıt etik kurul
+onayı gerektiriyor ve o onay haftalar sürüyor, tarihi de belirsiz. Yani karar
+lisans riskini sıfırladı ve yerine bir **takvim riski** koydu — ama takvim riski
+karar verilirken hiç tartılmadı, çünkü lisans tartışmasının içinde böyle bir
+terim yoktu.
+**Kim yakaladı:** Uygulama yoluna girmek. Tasarım turunda değil, 57 konuşmacılık
+toplama planı gerçek bir takvime oturtulmaya çalışılırken.
+**Neden tasarım turunda yakalanamazdı:** Seçenekler bir eksende karşılaştırıldı
+(lisans güvenliği), kararın maliyeti başka bir eksende çıktı (onay süresi).
+Doğru eksende doğru cevap verildi. Yanlış olan cevap değil, karşılaştırmanın tek
+eksenli olmasıydı — ve bir eksenin eksik olduğu, ancak o eksen bağlayıcı hâle
+gelince görülüyor.
+**Sonuç:** Çalışma iki kola ayrıldı (§3.0). Kol 1 sentetik bozulmayla açık
+lisanslı Türkçe metinden, Kol 2 gerçek ASR çıktısıyla kendi kayıtlarından. Kol 2
+iptal değil ertelendi ve tasarımı **şimdi donduruluyor** — onay geldiğinde
+yazılacak bir tasarım, Kol 1'in sonuçlarını görmüş bir tasarım olurdu ve ön kayıt
+diye bir şey kalmazdı. `segmentation.py`, Whisper kararı, kayıt uzunluğu ve VAD
+kararları rafa kalktı, silinmedi.
+**Sınıf: önceki dokuzun hiçbiri değil.** Vaka 1-9'un hepsi "yanlıştı,
+düzeltildi" biçimindeydi — yanlış test, kaçırılan körleme, eskimiş model kimliği,
+okunmamış lisans. Burada düzeltilen bir yanlış yok. Kendi kaydını kullanma kararı
+hâlâ lisans ekseninde en iyi karar ve o eksende hâlâ savunulabilir; Kol 2 olarak
+planda duruyor ve onay gelince aynen uygulanacak. Terk edilme sebebi hatalı
+olması değil, **pahalı** olması.
+Vaka 6 ve 8'e benzeyen tek yanı yakalanma anı: ikisinde de uygulama yoluna
+girmek gerekti. Ama orada yanlışlanan **varsayımdı**, burada yanlışlanan
+**maliyet tahmini**. Bir tasarım kararının doğruluğu ile uygulanabilirliği ayrı
+şeyler, ve ikisi ayrı anlarda ortaya çıkıyor.
+**Kaydedilmeye değer olan:** çalışmayı durduran şey bir hata değildi. Hata
+avlayan bir retrospektif, bunu hiç görmezdi.
+
+### Vaka 11 — Whisper zaten noktalama üretiyor, Kol 1 tasarımı buna göre değişti
+**Kim yaptı:** Tasarım (ikisi de onayladı).
+Kol 1 kurgusu şuydu: temiz metinden noktalama silinir, büyük harfler düşürülür,
+sayılar sözlü forma çevrilir; post-edit görevi bunu geri kurmaktır. Kurgu kendi
+içinde tutarlıydı ve iki taraf da makul buldu.
+Doğrulama sırasında Whisper `large-v3`'ün **zaten noktalamalı, büyük harfli,
+rakamlı çıktı verdiği** görüldü — bilinen zaafı yokluk değil *tutarsızlık*, ve
+davranış dile göre değişiyor. Yani Kol 1 noktalamayı tamamen silseydi iki kol
+**farklı görev** sunacaktı: Kol 1 sıfırdan restorasyon, Kol 2 onarım. S3
+(eşdeğerlik sorusu) iki farklı görevi karşılaştırıp farkı yanlış nedene yazacaktı
+— ve fark bulunsaydı "sentetik bozulma gerçeği temsil etmiyor" diye okunacaktı,
+oysa sebep tasarımın kendisi olacaktı.
+**Kim yakaladı:** Claude Code — ama tasarım tartışırken değil, **bozulma
+protokolü seçenekleri yazılmaya çalışılırken.** "Hangi bozulmayı uygulayacağız"
+sorusu, "girdi zaten neye benziyor" sorusunu zorunlu kıldı. Cevap kaynaktan
+okununca çıktı.
+**Neden tasarım turunda yakalanamazdı:** Varsayım hiç dile getirilmedi. "ASR
+çıktısı ham ve noktalamasızdır" cümlesi planın hiçbir yerinde yazmıyordu; o
+kadar temel görülüyordu ki tartışılacak bir şey sayılmadı. Yazılmayan varsayım
+kontrol edilmez.
+**Sonuç:** İki katmanlı. (1) Çıktı biçimi artık **doğrulama kalemi**: rubrik
+dondurulmadan önce seçilen checkpoint'in gerçek çıktısı incelenip manifest'e
+yazılıyor. (2) Bozulma protokolü D4'e (TTS → ASR turu) döndü — o kurguda her iki
+kolun girdisi de aynı tanıyıcının çıktısı olduğu için biçim eşleşmesi taklit
+edilmiyor, **yapıdan geliyor.**
+**Sınıf:** Vaka 6 ve 8 ile aynı — uygulamaya geçince yanlışlanan tasarım
+varsayımı. Ama bu **üçüncü örnek**, yani artık tekil vaka değil örüntü; §1'deki
+çıkarım bu yüzden yeniden yazıldı.
+
 ---
 
 ## 3. Çıkarımlar
@@ -160,7 +247,23 @@ gibi mekanik araçlar** — akıl yürütme değil.
 Sohbet asistanı iki gün boyunca 302 satırlık planın kendisini değil, özetini
 gördü. Vaka 4 doğrudan bunun sonucu. Kritik dosyaların ham metni taşınmalı.
 
-**4. Hız devredilebilir işte, yavaşlık devredilemez işte.**
+**4. Bir kararın maliyeti, kendi seçim ekseninde görünmeyebilir.**
+Vaka 9 ve 10 aynı kararın iki yarısı. Korpus lisans ekseninde tartışıldı ve o
+eksende en güvenli seçenek kazandı; kaybettiren şey hiç tartılmayan takvim
+ekseni oldu. Ders, "kendi kaydını seçme" değil: **bir seçenek elenmeden önce,
+elenme gerekçesinin hangi eksende olduğunu ve o eksenin tek eksen olup
+olmadığını sormak.** Vaka 9'un kuralı (kaynağından doğrula) buna eşlik ediyor
+ama yerini tutmuyor — TED'in politikası okunsaydı da etik kurul takvimi
+görünmezdi.
+
+**5. Bir varsayımı sınamanın en ucuz yolu, onu tartışmak değil.**
+Vaka 6, 8 ve 11 aynı yapıda ve üçü birlikte artık örüntü sayılır: tasarım
+turlarında kapanmayan şey, uygulamanın en küçük adımı yazılırken kapandı. Vaka
+11'de mekanizma daha da özel — yanlışlayan şey kodun kendisi değil, **kod
+yazmaya çalışmanın ürettiği soru** oldu ("girdi zaten neye benziyor?"). Sonuç:
+bir tasarım turu, uygulanabilir bir adım üretmeden kapatılmıyor.
+
+**6. Hız devredilebilir işte, yavaşlık devredilemez işte.**
 İki günde ortam, iki paket, 17 test, körleme modülü ve bir plan revizyonu
 tamamlandı. Aynı iki günde tek bir devredilemez karar (korpus) ilerlemedi.
 Oran bozuk ve bozukluğun yönü sistematik.
@@ -188,3 +291,38 @@ Plan §2 kapandı.
 
 **Commit durumu:** Üç ayrı commit önerildi, plan revizyonu sona bırakılacak —
 `analysis-plan-001-frozen` etiketinin neyi dondurduğu belirsizleşmesin diye.
+
+---
+
+## 5. 8 Eylül eki — korpus yolu ve bozulma protokolü
+
+Yukarıdaki §4, 6 Eylül akşamının kaydıdır ve kasten güncellenmiyor. Bu ek,
+sonrasında ne olduğunu ayrı bir katman olarak yazar.
+
+- **7 Eylül:** Bloke edici 1-3 kapandı. TEDx lisans gerekçesiyle elendi (Vaka 9),
+  kaynak kendi kayıtları oldu.
+- **8 Eylül (sabah):** Kendi kayıtları yolunun etik kurul onayı gerektirdiği ve
+  bunun haftalar sürebileceği ortaya çıktı (Vaka 10). Çalışma iki kola ayrıldı.
+  Kol 1 aktif, Kol 2 ertelendi ve tasarımı planda donduruldu.
+- **8 Eylül (akşam):** Whisper'ın zaten noktalamalı çıktı verdiği doğrulandı
+  (Vaka 11) ve bozulma protokolü **D4**'e karar bağlandı: metin → tereddüt
+  enjeksiyonu → TTS → akustik bozulma → 30 sn pencere → Whisper. Kol 1'de ses
+  var, insan yok.
+- **Değişmeyenler:** körleme, ön kayıt, iki tiyerli ölçüm, kümelenmiş çıkarım,
+  hakem doğrulaması, sistem karşılaştırması tahmin hedefi, iki başlık kuralı.
+  `blinding.py` ve `burned.py` aynen kullanılıyor.
+- **Rafa kalkmadı:** `segmentation.py`, Whisper `large-v3-turbo` kararı, VAD
+  eşiği ve kenar kuralı — D4 kararı bunları Kol 1'de **hemen** kullanıma soktu.
+  Yalnızca 7 dakikalık kayıt alt sınırı ve konuşmacı toplama Kol 2'ye kaldı.
+  Ertelenen şey ses değil, insan denek.
+- **Kapanan kararlar:** bozulma protokolü (D4 + D2), kümeleme birimi (makale),
+  parça uzunluğu (saniye cinsinden, iki kolda aynı — L1/L2/L3 tartışması
+  gereksizleşti), model sürümü kontrolü (X2 köprü seti), rubrik aktarımı
+  (kollar arası aynen, revize yok), S3 testi (TOST), mutlak tiyer alt kümesi
+  (40, keşifsel etiketli), yayın lisansı (her şey CC BY-SA 4.0).
+- **Yeni açık `[DECIDE]`:** TTS seçimi, Kol 1'de konuşmacı çeşitliliği, akustik
+  bozulma parametreleri (SNR / bant / RT60), tereddüt oranları, eşdeğerlik marjı,
+  köprü seti boyutu.
+- **Doğrulanacak, ezberden yazılmayacak:** Common Voice dağıtımı Ekim 2025'te
+  Mozilla Data Collective'e taşındı; §3.3'ün ısınma malzemesi olarak dayandığı
+  lisans yeniden kaynağından okunmalı.
