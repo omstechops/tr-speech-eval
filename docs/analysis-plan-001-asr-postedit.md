@@ -109,13 +109,30 @@ readable text. What differs is only where the input comes from.
 | Arm | Input | Status |
 |---|---|---|
 | **Arm 1 — synthetic** | Openly licensed Turkish text, degraded to a spoken-form transcript | **active** |
-| **Arm 2 — real ASR** | Own recordings, transcribed by a fixed ASR system | **deferred — awaiting ethics approval** |
+| **Arm 2 — real ASR** | Own recordings, transcribed by a fixed ASR system | **necessary — deferred, awaiting ethics approval** |
 
 **Why the arms exist.** The audio arm requires ethics-committee approval for
 human-subject recording, and that approval is measured in weeks with no
 guaranteed date. Arm 1 removes the study's dependence on a decision the study
-does not control. It is not a downgrade of Arm 2 and not a replacement for it:
-Arm 2 is deferred, not cancelled.
+does not control.
+
+**Arm 2 is necessary, and deferred. It is not optional, and Arm 1 is not a
+substitute for it.** The word matters, because a "deferred" arm quietly becomes a
+cancelled one. The necessity has a concrete source, discovered while deciding
+Arm 1's speaker policy in 3.1.5: **speaker diversity cannot be synthesised.**
+Arm 2 has 40 speakers. Arm 1 has one voice, because the two ways of manufacturing
+more — cloning from reference clips, and parametric voice variants — fail in
+different ways. Cloning needs recordings of real people, which reopens the
+consent question the arm split exists to avoid. Parametric variants generate
+variance along a synthetic axis, inflating between-cluster variance artificially
+and producing a ρ that corresponds to nothing real.
+
+So one of the largest drivers of ASR error — who is speaking — is present in
+Arm 2 and structurally absent from Arm 1, and no amount of care in Arm 1's design
+can put it there. Arm 1 can answer S1 and S2 on material Arm 1 controls. It
+cannot stand in for a study of real speakers, and this plan does not claim it
+can. If approval never arrives, that is reported as a limitation of the study's
+scope, not absorbed silently into Arm 1's conclusions.
 
 **Arm 2's design below is frozen with the rest of this plan, not written later.**
 When approval arrives the arm is executed, not designed. A materials section
@@ -399,7 +416,7 @@ articles fail.
   remains `[DECIDE]` is whether an article is synthesised whole, or section by
   section with the sections concatenated.
 
-#### 3.1.5 `[DECIDE]` — TTS selection, with licences read at source
+#### 3.1.5 TTS selection (decided): run both survivors in the gate
 
 **The selection rule, before the candidates.** A TTS licence matters here in a
 way it usually does not, because the generated audio is *published* as part of a
@@ -423,34 +440,79 @@ rather than from recollection:
 | **eSpeak NG** | **GPL-3.0** (`COPYING`); Turkish listed in `docs/languages.md` as `trk`/`tr` | yes | **No licence blocker** — a GPL licence on the synthesiser does not reach its audio output. Formant synthesis, deliberately robotic. Under the 3.1.2 headroom gate that is a **feature**: it is the candidate least likely to floor the WER |
 | **Orkhon-TTS** (hcsolakoglu) | Model card declares **Apache-2.0**; architecture is F5-TTS | yes, Turkish-specific, alpha, single speaker | **Licence chain unresolved.** The F5-TTS base weights (`SWivid/F5-TTS`) are **CC-BY-NC-4.0**. If Orkhon was fine-tuned from those weights rather than trained from scratch, the Apache-2.0 marking may exceed what the author could grant. Resolve with the author before use; do not resolve by assuming |
 | **`Omarrran/turkish_finetuned_speecht5_tts`** | Model **MIT**, base `microsoft/speecht5_tts` MIT | yes | **Provenance problem.** Its training set `erenfazlioglu/turkishvoicedataset` carries **no licence field at all** and is tagged `synthetic-voice` — TTS output used to train TTS, upstream unknown. The card also states it was made "for review purposes only… not a production-ready model" |
-| **Coqui XTTS-v2** | **CPML**, quoted verbatim: *"This license allows only non-commercial use of a machine learning model **and its outputs**"* | yes, 17 languages including `tr` | **Eliminated.** The licence reaches the output by its own first line, so the audio cannot be published under CC BY-SA 4.0. Same wall as TEDx, a different clause |
+| **Coqui XTTS-v2** | **CPML**, quoted verbatim: *"This license allows only non-commercial use of a machine learning model **and its outputs**"* | yes, 17 languages including `tr` | **Eliminated by the first sentence of its own licence file** — see the note below the table |
 | **`facebook/mms-tts-tur`** | **CC-BY-NC-4.0**, stated on the model card | yes, Turkish-specific VITS | **Eliminated.** NC cannot be relicensed as BY-SA |
 | **Piper `tr_TR-dfki-medium`** | Engine MIT (archived repo) / GPL-3.0 (active fork). The voice's `MODEL_CARD` names its dataset as `marytts/dfki-ot-data` under **CC BY-NC-SA 4.0** | yes — the only Turkish Piper voice | **NC-SA in the chain**, and BY-NC-SA cannot be relicensed as BY-SA. Also fine-tuned from a US English voice, so accent artefacts are plausible |
 | **Kokoro-82M** | Apache-2.0 | **no** — model card lists `language: en` only | Eliminated: no Turkish |
 | **Zonos-v0.1** | Apache-2.0 | **no** — README: English, Japanese, Chinese, French, German | Eliminated: no Turkish |
 | Commercial APIs (Google, Azure, ElevenLabs) | provider terms of service, not a public licence | yes | **Not assessed.** Permission to *use* an API is a different question from permission to *redistribute* the generated audio as a public dataset. Each provider's terms are read at source before it enters this table |
 
-Two candidates survive with no licence blocker: **Chatterbox** and **eSpeak NG**.
-They fail in opposite directions — Chatterbox is natural enough to risk flooring
-the WER at the 3.1.2 gate, eSpeak NG is robotic enough to risk making the task
-unrepresentatively hard — and they can be used together, with synthesiser
-recorded per item as a covariate. **The choice is `[DECIDE]`.**
+**The XTTS-v2 elimination is worth recording as a method note, not only as a
+result.** It was the strongest candidate on capability, and it was eliminated by
+the opening sentence of its own licence file — a sentence stating that the
+licence reaches the model's outputs, which is precisely the clause that decides
+this table. Reading it took one fetch. Not reading it would have produced a
+corpus that could not be published, discovered at publication time. This is case
+9 of the setup retrospective in a second setting, and the failure mode is the
+same both times: not that a licence turns out to be restrictive, but that a
+licence is *assumed* while being flagged as something to check later.
 
-**Speaker variation is an open decision and a real threat to S3.** Arm 2 has 40
-speakers; speaker identity is one of the largest drivers of ASR error. An Arm 1
-built on a single voice removes that driver entirely, which lowers between-cluster
-variance, changes ρ, and makes the arms differ in one more way than intended.
-`[DECIDE]` among:
+**The eliminated candidates stay in the table with their reasons.** A rejected
+option with no recorded reason gets proposed again six weeks later.
 
-- one voice for all items, with the limitation declared;
-- eSpeak NG voice variants — crude parametric variation in pitch and rate;
-- Chatterbox voice cloning from reference clips, which needs a licensed source of
-  reference voices. **Common Voice Turkish is the obvious candidate and its terms
-  must be re-read at source**: as of October 2025 Mozilla moved Common Voice
-  distribution to the Mozilla Data Collective, so the licence this plan relies on
-  for warm-up material in 3.3 is itself due for verification. Using recordings of
-  real people as cloning references also reopens, in a smaller form, the consent
-  question the arm split was made to avoid.
+**Decided: both survivors are run in the 3.1.2 gate, and the gate picks.**
+Chatterbox and eSpeak NG both go through the five-article chain, and `tts_engine`
+is recorded per item as a covariate.
+
+**The reason is insurance, not variety.** The two candidates fail in opposite
+directions: Chatterbox is natural enough that its transcripts may floor the WER
+and leave the systems nothing to separate, and eSpeak NG is robotic enough that
+its transcripts may make the task unrepresentatively hard. Running one and
+discovering at the gate that it fails would cost a second gate round; running
+both costs one round and answers the question. **The 8% threshold decides which
+survives** — the gate was already going to measure WER, so it measures it twice
+instead of once.
+
+This is not a decision deferred for lack of information. It is a decision
+delegated to a measurement that is already being taken, and the criterion is
+fixed before the measurement, which is what distinguishes the two.
+
+If both pass the gate, the choice between them — or the decision to keep both,
+with `tts_engine` as a declared subgroup variable — is made on the gate's WER
+figures and recorded in the manifest before any study item is drawn.
+
+**The Chatterbox watermark is declared, not worked around.** If Chatterbox is
+used, the published dataset card states that every audio file carries Resemble
+AI's Perth neural watermark. Publishing watermarked audio without saying so would
+leave an undisclosed signal in a corpus whose whole purpose is reproducibility.
+
+**Speaker variation (decided): one voice per engine, with the limitation
+declared.** Arm 2 has 40 speakers, and speaker identity is one of the largest
+drivers of ASR error. Arm 1 has one. That is a real loss and it is recorded as
+one rather than papered over.
+
+Both alternatives were rejected, each for a reason that would have cost more than
+the loss does:
+
+- **Voice cloning from reference clips** requires a source of reference voices,
+  and reference voices come from real people. That reopens the consent question
+  the arm split exists to avoid. It being a smaller consent question does not
+  make it a different one.
+- **eSpeak NG parametric variants** — pitch and rate — would manufacture variance
+  along a synthetic axis. It would inflate between-cluster variance artificially,
+  and ρ estimated from it would not correspond to anything: not to real speaker
+  variation, and not to the ρ Arm 2 will produce. A ρ that means nothing is worse
+  than a ρ that is honestly too small, because section 9's entire design-effect
+  argument is built on it.
+
+**Consequence for the analysis, stated here so it is not discovered later:** with
+a single voice, every cluster in Arm 1 shares one speaker. Whatever variance real
+speaker diversity would contribute is not merely unestimated, it is absent from
+the material. Arm 1's ρ therefore estimates within-*article* correlation only,
+and is expected to be smaller than Arm 2's, which will carry speaker correlation
+as well. The two arms' effective sample sizes are reported separately for this
+reason (3.4), and S3's equivalence claim declares it alongside register and date
+(7.5).
 
 #### 3.1.6 Item budget and burned sets
 
@@ -608,13 +670,16 @@ testing only, and contributes no item to either arm's study set. Read-aloud shor
 sentences lack disfluency, repetition and natural sentence boundaries, so they
 exercise only half of the post-editing task.
 
-**Its terms are due for re-verification and are not assumed here.** As of October
-2025 Mozilla moved Common Voice distribution to the Mozilla Data Collective, so
-the licence under which this plan may use the corpus — for warm-up, and
-potentially as a source of cloning reference voices under 3.1.5 — is read at the
-current distributor before any such use, not carried over from what the licence
-used to be. This is the same rule that governs the Wikipedia licence in 3.1.1 and
-the TTS licences in 3.1.5.
+**One question about its terms remains open, and it is a narrow one.** As of
+October 2025 Mozilla moved Common Voice distribution to the Mozilla Data
+Collective, so the licence is read at the current distributor rather than carried
+over from what it used to be — the rule that governs the Wikipedia licence in
+3.1.1 and the TTS licences in 3.1.5.
+
+The question narrowed when 3.1.5 ruled out voice cloning: Common Voice is not a
+source of reference voices for this study, so the only thing to establish is
+**whether it may be used for pipeline warm-up and blinding-harness testing.** No
+Common Voice material is published, redistributed or rated, in either arm.
 
 **TEDx was eliminated on licence grounds, not editorial ones.** TED publishes
 TED and TEDx talks under CC BY-NC-ND 4.0, and the binding restriction is ND, not
