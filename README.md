@@ -44,6 +44,8 @@ those extras. It reads distribution metadata and imports none of them.
 
 ## Development
 
+The virtualenv is not in the repository; recreate it after a clone.
+
 ```bash
 python3.14 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/pytest -q && .venv/bin/ruff check . && .venv/bin/mypy
