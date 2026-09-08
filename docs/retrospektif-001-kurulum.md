@@ -1,9 +1,10 @@
 # Kurulum Retrospektifi — 5-6 Eylül 2026
 
 **Kapsam:** `evalstat` ve `tr-speech-eval` projelerinin ilk iki günü. Analiz
-planı 001'in taslaktan §2'si kapanmış hâle gelmesine kadar. Vaka 10 ve 11
-8 Eylül'de eklendi; kayıt kapatılmadı çünkü ikisi de yeni bilgi taşıyordu —
-biri yeni bir hata sınıfı, diğeri var olan bir sınıfın örüntüye dönüştüğünü.
+planı 001'in taslaktan §2'si kapanmış hâle gelmesine kadar. Vaka 10, 11 ve 12
+8 Eylül'de eklendi; kayıt kapatılmadı çünkü üçü de yeni bilgi taşıyordu — biri
+yeni bir hata sınıfı, biri var olan bir sınıfın örüntüye dönüştüğünü, biri de bir
+denetimin kendi sorusunun dışını görmediğini.
 
 **Neden tutuluyor:** Bu belge bir ilerleme raporu değil. Bir ölçüm çalışması
 kurulurken yapılan hataların ve onları yakalayan mekanizmaların kaydı. Çalışmanın
@@ -14,7 +15,7 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-On bir vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+On iki vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
 **Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
 yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
@@ -26,8 +27,9 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 | Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
 | Hiçbiri (geç yakalandı) | Her iki tarafın ortak kör noktası | 3, 7 |
 | **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
+| **Başka soruyla yapılan tarama** | **Önceki denetimin sorusuna girmeyen hata** | **12** |
 
-İki şey değişti.
+Üç şey değişti.
 
 **Birincisi: "uygulamaya geçmek" artık üç vakalı ve örüntü sayılır.** 6, 8 ve 11
 aynı yapıya sahip: bir tasarım varsayımı tasarım turlarında yanlışlanamadı,
@@ -44,6 +46,13 @@ kullanma kararı hâlâ lisans açısından en iyi karar. Terk edilme sebebi hat
 olması değil, **pahalı** olması — ve maliyeti karar verilirken görünmüyordu. Bu
 yüzden ayrı satırda: "doğru ama pahalı" bir kararın terk edilmesi, bir hatanın
 düzeltilmesiyle aynı şey değil ve aynı mekanizmayla yakalanmıyor.
+
+**Üçüncüsü: Vaka 12 hatayla değil, onu arayan mekanizmayla ilgili.** Önceki on
+bir vakada yakalayan mekanizma hatayı arıyordu. Vaka 12'de hatayı bulan tarama
+başka bir şey arıyordu; hatanın durduğu alan bir önceki taramada okunmuş ve
+"temiz" raporlanmıştı. Rapor yanlış değildi — sorulan soruya göre temizdi. Ayrı
+satırda olmasının sebebi bu: bir alanı bir sebeple denetlemek, onu başka bir
+sebeple denetlemiş saymıyor.
 
 Son satır en önemlisi. İki bağımsız AI'ın **aynı anda** kaçırdığı hatalar var.
 Çapraz kontrol bunları çözmüyor.
@@ -227,6 +236,36 @@ edilmiyor, **yapıdan geliyor.**
 **Sınıf:** Vaka 6 ve 8 ile aynı — uygulamaya geçince yanlışlanan tasarım
 varsayımı. Ama bu **üçüncü örnek**, yani artık tekil vaka değil örüntü; §1'deki
 çıkarım bu yüzden yeniden yazıldı.
+
+### Vaka 12 — Kırık proje adresi gizlilik taramasının içinden geçti
+**Kim yaptı:** Claude Code, ilk commit'te.
+`evalstat/pyproject.toml`'un `[project.urls]` bölümü `Homepage` ve `Issues`
+alanlarını var olmayan bir depoya yönlendirdi: adresin hesap kısmına GitHub
+hesabı değil **yerel makinenin kullanıcı adı** yazılmıştı ve o adreste hiçbir
+zaman bir depo olmadı. Değer bir kaynaktan okunmadı, elde duran isimden
+üretildi — üstelik depo henüz yaratılmamıştı, yani okunacak bir kaynak da yoktu.
+İki alan da paket metadata'sına giriyor: PyPI'a yayımlansaydı paket
+sayfasındaki "Homepage" ve "Issues" bağlantıları 404 verecekti.
+**Kim yakaladı:** Claude Code — ama **gizlilik taraması sırasında değil**, ondan
+sonra gelen isim eşitlemesi sırasında.
+**Neden gizlilik taraması yakalamadı:** Yakalayamazdı. O tarama tüm geçmişte
+yazar alanındaki kişisel e-posta adresini arıyordu; tam da bu dosyayı okudu,
+adresi on üç commit'ten çıkardı ve **"temiz" raporladı.** Rapor doğruydu —
+sorulan soruya göre temizdi. Kırık adres o sorunun içinde değildi. Bir tarama
+yalnızca kendi sorusunu cevaplar, ve cevabı "temiz" olduğunda alan denetlenmiş
+görünür.
+**Sınıf:** Yeni. Aynı alan iki ayrı sebeple denetlenmeliydi — **gizlilik**
+(içinde kişisel bir tanımlayıcı var mı) ve **doğruluk** (yazdığı şey gerçek mi).
+Biri için tarandığında öteki görünmüyor, üstelik ilk taramanın temiz raporu
+ikincinin gereksiz olduğu izlenimini veriyor.
+**Maliyet:** Bu kez sıfır; push'tan önce yakalandı.
+**Sonuç:** Aynı ailenin iki üyesi bu bölünme sırasında zaten düzeltilmişti:
+`requires-python = ">=3.10"` hiçbir testin çalıştırmadığı bir tabanı ilan
+ediyordu, `license = { text = "MIT" }` ise var olmayan bir LICENSE dosyasına
+dayanıyordu. Üçü de aynı biçimde: **metadata bir şey beyan ediyor ve onu
+doğrulayan hiçbir şey yok.** Vaka 9'un kuralı buraya uzanıyor: dışarıdan
+doğrulanabilir her alan, yayımdan önce kendi kaynağından okunur — ve bir sebeple
+tarandığı için öteki sebeple de tarandı sayılmaz.
 
 ---
 
