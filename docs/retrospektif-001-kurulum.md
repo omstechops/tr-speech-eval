@@ -259,6 +259,14 @@ görünür.
 Biri için tarandığında öteki görünmüyor, üstelik ilk taramanın temiz raporu
 ikincinin gereksiz olduğu izlenimini veriyor.
 **Maliyet:** Bu kez sıfır; push'tan önce yakalandı.
+**Vakanın kendi kaydı da aynı hataya düştü.** Bu vaka ilk yazıldığında, olayı
+anlatmak için, geçmişten çıkarılan e-posta adresi metnin içine birebir konuldu.
+On üç commit'ten silinen dizgi, yayınlanacak bir belgeye düz metin olarak geri
+girdi. Yakalayan şey sahibinin push öncesi istediği kontrollerden biri oldu —
+çalışma ağacında kişisel tanımlayıcı arayan tarama. Commit henüz push
+edilmemişti; metin düzeltildi. Kural "geçmişi temizle" diye kurulduğu için
+tarama geçmişe bakıyordu ve **"yeni yazılanı da kontrol et" adımı kendiliğinden
+gelmedi.** Bir denetim, kendi ürettiği metni kapsamadığı sürece eksik.
 **Sonuç:** Aynı ailenin iki üyesi bu bölünme sırasında zaten düzeltilmişti:
 `requires-python = ">=3.10"` hiçbir testin çalıştırmadığı bir tabanı ilan
 ediyordu, `license = { text = "MIT" }` ise var olmayan bir LICENSE dosyasına
@@ -306,6 +314,11 @@ bir tasarım turu, uygulanabilir bir adım üretmeden kapatılmıyor.
 İki günde ortam, iki paket, 17 test, körleme modülü ve bir plan revizyonu
 tamamlandı. Aynı iki günde tek bir devredilemez karar (korpus) ilerlemedi.
 Oran bozuk ve bozukluğun yönü sistematik.
+
+**7. Bir denetim yalnızca sorduğu soruyu yanıtlar.**
+Kişisel bilgi taraması işlevsel hatayı, geçmiş taraması yeni yazılan metni
+bulmuyor — Vaka 12 ikisini de gösteriyor. Aynı alan farklı sebeplerle ayrı ayrı
+denetlenmeli, ve denetim kendi çıktısını da kapsamalı.
 
 ---
 
