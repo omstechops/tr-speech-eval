@@ -4,7 +4,9 @@
 planı 001'in taslaktan §2'si kapanmış hâle gelmesine kadar. Vaka 10, 11 ve 12
 8 Eylül'de eklendi; kayıt kapatılmadı çünkü üçü de yeni bilgi taşıyordu — biri
 yeni bir hata sınıfı, biri var olan bir sınıfın örüntüye dönüştüğünü, biri de bir
-denetimin kendi sorusunun dışını görmediğini.
+denetimin kendi sorusunun dışını görmediğini. Vaka 13, 9 Eylül'de, aynı sebeple:
+Vaka 1'in sınıfı ikinci örneğini verdi ve tek vakada görünmeyen bir kaynak
+örüntüsü görünür oldu.
 
 **Neden tutuluyor:** Bu belge bir ilerleme raporu değil. Bir ölçüm çalışması
 kurulurken yapılan hataların ve onları yakalayan mekanizmaların kaydı. Çalışmanın
@@ -15,13 +17,13 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-On iki vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+On üç vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
 **Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
 yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
 | Mekanizma | Yakaladığı sınıf | Vaka |
 |---|---|---|
-| Çapraz kontrol (AI → AI) | İç tutarsızlık, matematiksel ilişki hatası | 1, 4 |
+| Çapraz kontrol (AI → AI) | İç tutarsızlık, matematiksel ilişki hatası | 1, 4, **13** |
 | İnsan düzeltmesi | Niyet okuma hatası, odak kayması | 2 |
 | **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11** |
 | Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
@@ -29,7 +31,7 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 | **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
 | **Başka soruyla yapılan tarama** | **Önceki denetimin sorusuna girmeyen hata** | **12** |
 
-Üç şey değişti.
+Dört şey değişti.
 
 **Birincisi: "uygulamaya geçmek" artık üç vakalı ve örüntü sayılır.** 6, 8 ve 11
 aynı yapıya sahip: bir tasarım varsayımı tasarım turlarında yanlışlanamadı,
@@ -53,6 +55,15 @@ başka bir şey arıyordu; hatanın durduğu alan bir önceki taramada okunmuş 
 "temiz" raporlanmıştı. Rapor yanlış değildi — sorulan soruya göre temizdi. Ayrı
 satırda olmasının sebebi bu: bir alanı bir sebeple denetlemek, onu başka bir
 sebeple denetlemiş saymıyor.
+
+**Dördüncüsü: Vaka 13, Vaka 1 ile aynı sınıfın ikinci örneği ve sınıf artık bir
+kaynağa bağlı.** İkisinde de sohbet asistanı bir **yön veya dejenere durum**
+iddiasını sezgiden kurdu ve iddia yanlış çıktı: Wilcoxon'ın üç seviyeli veride
+işaret testine indiğini görmemek, ve dar aralığın gücü hangi yöne çektiğini ters
+kurmak. İkisi de aynı mekanizmayla, çapraz kontrolle yakalandı. Belgenin başka
+yerinde örüntü eşiği üç vaka; burada iki vaka var, ama sınıf da dar — tek kaynak,
+tek iddia tipi. Bu yüzden "örüntü" değil **kaynağa özgü kural** olarak
+kaydediliyor (§3.8).
 
 Son satır en önemlisi. İki bağımsız AI'ın **aynı anda** kaçırdığı hatalar var.
 Çapraz kontrol bunları çözmüyor.
@@ -275,6 +286,28 @@ doğrulayan hiçbir şey yok.** Vaka 9'un kuralı buraya uzanıyor: dışarıdan
 doğrulanabilir her alan, yayımdan önce kendi kaynağından okunur — ve bir sebeple
 tarandığı için öteki sebeple de tarandı sayılmaz.
 
+### Vaka 13 — Kapsama açığının güce etkisi ters kuruldu
+**Kim yaptı:** Sohbet asistanı; sahibi zinciri devraldı ve `power_analysis()`
+görev tanımına yazdı.
+İddia şuydu: `paired_bootstrap`'ın aralıkları k=40'ta nominal %95 yerine ~%93
+kapsadığı için, nominal orana dayanan bir güç hesabı "aynı oranda **iyimser**"
+olur. Yön ters. Kapsaması düşük aralık **dar**dır; dar aralık sıfırı daha sık
+dışlar; prosedür hem H₀ hem H₁ altında nominalden **daha sık** reddeder. Yani ham
+reddetme oranı bakımından nominal hesap iyimser değil, karamsardır. İyimserlik
+başka yerde ve gerçekten var: prosedürün α=0.05'te çalıştığı iddiasında. Gerçek
+hatayı %5'te tutmak aralığı genişletmeyi gerektirir, bu da aynı n'de gücü düşürür
+ve MDE'yi büyütür.
+**Kim yakaladı:** Claude Code, görevin ilk adımında, kod yazılmadan.
+**Neden kendi kendine yakalanamazdı:** Vaka 1 ile aynı yapı. "Dar aralık = az
+bilgi = az güç" zinciri sezgisel olarak akıcı ve her adımı ayrı ayrı doğru
+sesleniyor; yanlış olan birleşim. İddiayı üreten sezgi, onu kontrol edecek sezgiyle
+aynı sezgi.
+**Sonuç:** Sıfır maliyet — yanlış yön uygulamaya geçmedi. Ama geçseydi ucuz
+olmazdı: §9.1'in düzeltme seçenekleri bu yön üzerine kuruluydu ve MDE eğrisi
+yanlış yöne düzeltilirdi. Doğru okuma §9.1'e yazıldı, kapsama-güç yönü orada
+artık açıkça anlatılıyor.
+**Sınıf notu:** Vaka 1 ile aynı sınıf, aynı kaynak, ikinci örnek. Kural §3.8'de.
+
 ---
 
 ## 3. Çıkarımlar
@@ -319,6 +352,19 @@ Oran bozuk ve bozukluğun yönü sistematik.
 Kişisel bilgi taraması işlevsel hatayı, geçmiş taraması yeni yazılan metni
 bulmuyor — Vaka 12 ikisini de gösteriyor. Aynı alan farklı sebeplerle ayrı ayrı
 denetlenmeli, ve denetim kendi çıktısını da kapsamalı.
+
+**8. Sohbet asistanının yön ve dejenere durum iddiaları doğrulanmadan
+alınmıyor.**
+Vaka 1 ve 13 aynı sınıf: bir istatistiksel ilişkinin **yönü** ("hangi hata hangi
+tarafa çeker") veya bir testin **dejenere durumu** ("bu veride bu test neye
+iner") sezgiden kuruldu ve ikisi de yanlış çıktı. İkisi de çapraz kontrolle
+yakalandı, ikisinin de maliyeti sıfır kaldı — ama ikisi de yakalanmasaydı
+tasarıma girecekti. Bu sınıf, o kaynağın en zayıf yeri olarak kaydediliyor:
+akıcı, tek tek doğru duran adımlardan kurulu ve yanlış olan yalnızca birleşim.
+**Kural:** o kaynaktan gelen bir yön iddiası ya küçük bir sayısal örnekle ya da
+formülün kendisiyle doğrulanmadan plana, koda veya göreve girmez. Kaynağın
+tamamını değil, bu iki iddia tipini hedefleyen bir kontrol; geri kalanı (kavram
+açıklama, karşılaştırma, redaksiyon) bu kaydın konusu değil.
 
 ---
 

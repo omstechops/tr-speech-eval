@@ -1179,19 +1179,47 @@ hedge. **The point of fixing the wording now is that it is fixed before the
 results exist.** A study that discovers its intervals are optimistic while
 writing up its findings has an incentive it does not have today.
 
-**Consequence for section 9's expected effective n, and a new open decision.**
-The band of 86-100 was derived from the design effect alone. Under-coverage means
-the intervals built on it are narrower than their nominal level, so the band is
-optimistic in a second, separate way: the design effect describes how much
-information the clustering costs, and the coverage shortfall describes how much
-the interval overstates the information that remains. The minimum detectable
-effect curve therefore needs a correction.
+**Consequence for section 9's expected effective n, and the direction of it.**
+The band of 86-100 was derived from the design effect alone. Under-coverage is a
+second and separate shortfall, and its direction is worth stating carefully
+because it inverts easily. A narrow interval excludes zero *more* often, so the
+procedure rejects more often than nominal — under the null as much as under the
+alternative. The nominal calculation is therefore not optimistic about the
+rejection rate; if anything it understates it. The optimism sits in the error
+rate the calculation claims: holding the real error at 5% would require a wider
+interval, which costs power at the same n and enlarges the minimum detectable
+effect. An MDE curve computed against the nominal level states a detection
+threshold for a test this study will not be running.
 
-`[DECIDE: MDE coverage correction]` — whether the MDE curve is computed against
-the nominal level, against the measured coverage, or reported as a band spanning
-both. Deferred deliberately: the correction depends on ρ and the tie rate, and
-both come from the pilot. It is opened here so that it cannot be quietly skipped
-when the pilot data arrives.
+**Decision, closed: the MDE curve is computed by simulating the procedure this
+study will actually run, with the nominal-level figure reported beside it as the
+comparison.** `evalstat`'s `power_analysis()` generates clustered data under the
+assumed design, runs `paired_bootstrap` on it, and counts how often the interval
+excludes zero. Nothing is corrected, because nothing is assumed: the coverage
+shortfall is measured at the design point being asked about instead of being
+carried to it. The two rejected routes, and why:
+
+- *Nominal level with the shortfall documented as a limitation* would report the
+  curve against a claim the measurement above has already contradicted, and put
+  the contradiction in a limitations paragraph. It is kept only as the
+  comparison figure, labelled as the number conventional tooling reports.
+- *An α calibrated from the 0.927 figure* is nearly free, but 0.927 was measured
+  at one design point — k = 40, m = 3, ρ = 0.2, the mean — and would be carried
+  to every other point of the curve. Measuring across the curve instead of
+  extrapolating across it is the simulation route.
+
+The route that produced each number is recorded with it, and the simulated error
+rate at the design is reported alongside the curve rather than assumed.
+
+**Still open, and pilot-dependent.** This decision fixes how the curve is
+computed, not what it is computed from. The real ρ and the real tie rate come
+from the pilot, and both enter the curve. `[DECIDE: pilot inputs to the MDE
+curve]` — the ρ range and the tie rate the published curve is drawn at, to be
+fixed after the pilot runs and before any study data is examined. A further
+question is recorded in `evalstat`'s `docs/design/power_analysis.md` rather than
+here: whether the published curve quotes power at the error rate the procedure
+actually runs at, which is the default, or at an error rate calibrated back to
+5%.
 
 ## 10. Stopping rule and pre-written conclusions
 
