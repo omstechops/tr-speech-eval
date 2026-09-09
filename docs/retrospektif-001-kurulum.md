@@ -19,7 +19,7 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-On beş vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+On altı vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
 **Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
 yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
@@ -31,7 +31,7 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 | Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
 | Hiçbiri (geç yakalandı) | Her iki tarafın ortak kör noktası | 3, 7 |
 | **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
-| **Başka soruyla yapılan tarama** | **Önceki denetimin sorusuna girmeyen hata** | **12** |
+| **Başka soruyla yapılan tarama** | **Önceki denetimin sorusuna girmeyen hata** | **12, 16** |
 
 Dört şey değişti.
 
@@ -67,12 +67,19 @@ olması değil, **pahalı** olması — ve maliyeti karar verilirken görünmüy
 yüzden ayrı satırda: "doğru ama pahalı" bir kararın terk edilmesi, bir hatanın
 düzeltilmesiyle aynı şey değil ve aynı mekanizmayla yakalanmıyor.
 
-**Üçüncüsü: Vaka 12 hatayla değil, onu arayan mekanizmayla ilgili.** Önceki on
-bir vakada yakalayan mekanizma hatayı arıyordu. Vaka 12'de hatayı bulan tarama
-başka bir şey arıyordu; hatanın durduğu alan bir önceki taramada okunmuş ve
+**Üçüncüsü: Vaka 12 ve 16 hatayla değil, onu arayan mekanizmayla ilgili.**
+Önceki on bir vakada yakalayan mekanizma hatayı arıyordu. Vaka 12'de hatayı bulan
+tarama başka bir şey arıyordu; hatanın durduğu alan bir önceki taramada okunmuş ve
 "temiz" raporlanmıştı. Rapor yanlış değildi — sorulan soruya göre temizdi. Ayrı
 satırda olmasının sebebi bu: bir alanı bir sebeple denetlemek, onu başka bir
 sebeple denetlemiş saymıyor.
+
+Vaka 16 aynı satırın ikinci örneği ve sınıfı denetimden **işleme** genişletiyor.
+Vaka 12'de bir *alan* iki farklı sebeple ayrı ayrı denetlenmemişti; Vaka 16'da bir
+*işlem* iki hedef için ayrı ayrı doğrulanmamıştı. İkisinde de yakalayan şey,
+başka bir soruyu sormak için çalıştırılan bir komut oldu. İki örnekle satır artık
+tek vakalık bir merak değil: **kapsamı birden çok olan hiçbir şey — ne bir
+denetim, ne bir işlem — tek bir başarılı çıktıyla kapanmıyor.**
 
 **Dördüncüsü: Vaka 13, Vaka 1 ile aynı sınıfın ikinci örneği ve sınıf artık bir
 kaynağa bağlı.** İkisinde de sohbet asistanı bir **yön veya dejenere durum**
@@ -395,6 +402,73 @@ sabiti ve test rahatlığı için değişmez. Bastırmanın **neden** orada oldu
 docstring'ine yazıldı; yazılmasaydı altı ay sonra sarmalayıcının kendisi bir soru
 olurdu.
 
+### Vaka 16 — İki depoya push edildiği varsayıldı, yalnızca biri doğrulandı
+**Kim yaptı:** Claude Code ve sahibi birlikte, 8 Eylül bölünmesinde. Tek depo üçe
+ayrıldı, ikisine remote eklendi ve ikisine push edildi. `evalstat`'ın push'u
+başarılı döndü. `tr-speech-eval` tarafında **uzak depo hiç var olmadı** — remote
+URL'si `git remote add` ile yerel yapılandırmaya yazıldı, ama GitHub tarafında o
+adres hiçbir zaman çözülmedi. `git remote -v` doğru URL'yi gösterdiği için
+yapılandırma bakıldığında sağlam görünüyor; `remote -v` yalnızca yazılmış olanı
+okuyor, karşılığının var olduğunu sınamıyor.
+
+**Asıl hata varsayımın kendisi değil, kanıtın devredilmesi.** İki hedefli bir
+işlem yapıldı, bir hedefin başarılı çıktısı görüldü, ve o çıktı **ikisinin de**
+gittiğinin kanıtı sayıldı. Ortada yanlış bir gözlem yok — `evalstat` gerçekten
+push edildi. Yanlış olan, tek gözlemin kapsamının iki katına çıkarılması.
+
+**Kim yakaladı:** Sahibi, push öncesi "kaç commit bekliyor" diye sorunca. Cevap
+için `git fetch` atıldı ve fetch `Repository not found` döndü. Yani hatayı bulan
+komut hatayı aramıyordu; commit sayısı sayıyordu.
+
+**Sınıf:** Vaka 12'nin akrabası — başka bir soruyla yapılan tarama. Orada bir alan
+iki farklı sebeple denetlenmemişti, burada bir işlem iki hedef için ayrı ayrı
+doğrulanmamıştı.
+
+**Neden aradaki sürede yakalanmadı:** Hiçbir şey kırmızıya dönmedi. Yerel depo
+tamamen sağlıklı: `git status` temiz, `git log` 22 commit gösteriyor, `git commit`
+çalışıyor, `git remote -v` beklenen adresi yazıyor. Uzak tarafın yokluğu ancak
+uzak tarafa gerçekten dokunan bir komutla — `fetch`, `ls-remote`, `push` — ortaya
+çıkıyor, ve bölünmeden sonra o komutlardan hiçbiri bu depoda çalıştırılmadı.
+Ayrıca `origin/main` diye bir ref hiç oluşmadığı için `log origin/main..HEAD`
+"0 commit" değil **hata** veriyor; bu ayrımın kendisi de fark edilmeyi bekliyordu,
+çünkü "0 commit bekliyor" ile "kıyaslanacak taraf yok" aynı ekranda benzer duruyor.
+
+**İkincil zarar: yanlış olgu belleğe yazıldı.** Arada geçen sürede kalıcı nota
+"depolar public oldu" diye bir cümle girdi. O cümle hiçbir kaynaktan okunmamıştı;
+push'un başarılı olduğu varsayımından türetilmişti. Yani doğrulanmamış bir varsayım
+yalnızca kaydedilmedi, **olgu diye kaydedildi** ve sonraki oturumlara olgu olarak
+taşındı. Bu, belgenin başka yerinde zaten yazılı olan kuralın ihlali: bir artefakta
+veya dışarıya verilen bir beyana girecek olgu, kaynağından okunur.
+
+**Maliyet:** Şimdilik düşük — hiçbir iş kaybolmadı, 22 commit yerelde duruyor ve
+push edilebilir durumda. Maliyeti sıfırdan büyük yapan iki şey var: bölünmeden
+bu yana yapılan bütün çalışma tek kopya hâlinde tek diskte durdu, ve bellekteki
+yanlış olgu düzeltilene kadar sonraki her oturumun başlangıç bilgisi yanlıştı.
+
+**Sonuç:** `evalstat`'ın `ls-remote`'u kontrol grubu olarak koşuldu ve gerçek hash
+döndürdü, yani sorun kimlik doğrulama veya ağ değil, adresin kendisi. Uzak deponun
+durumu sahibine soruldu; `remote set-url` sahibinin cevabı gelmeden yapılmadı,
+çünkü doğru adresi tahmin etmek bu vakanın kendisini tekrarlamak olurdu.
+
+Sahibinin cevabı teşhisi doğruladı: **depo GitHub'da hiç yoktu ve aynı adla yeni
+oluşturuldu.** Yerel remote URL'si baştan beri doğruydu, `set-url` hiç gerekmedi —
+eksik olan yapılandırma değil, yapılandırmanın işaret ettiği şeydi. Aynı komut
+şimdi farklı bir sonuç veriyor ve fark tam da §3.7'nin üçüncü maddesinin konusu:
+
+| | Depo yokken | Depo boş oluşturulduktan sonra |
+|---|---|---|
+| `ls-remote origin` | exit 128, `Repository not found` | exit 0, çıktı boş |
+| `fetch origin` | exit 128 | exit 0 |
+| `remote -v` | aynı satır | aynı satır |
+
+`remote -v` iki durumda da değişmedi, çünkü yerel yapılandırmayı okuyor; değişen
+uzak tarafın kendisiydi. `log origin/main..HEAD` hâlâ hata veriyor, ama artık
+başka bir sebeple — depo var, içi boş, `origin/main` diye bir ref henüz yok. "Yok"
+ile "boş"un aynı ekranda benzer görünmesi bu vakada iki kez işe karıştı.
+
+Uzak taraf sıfır ref taşıdığı için bölünmeden bu yana biriken **22 commit'in
+tamamı** push bekliyor. Kural §3.7'ye eklendi.
+
 ---
 
 ## 3. Çıkarımlar
@@ -456,10 +530,29 @@ bir kural:
 tamamlandı. Aynı iki günde tek bir devredilemez karar (korpus) ilerlemedi.
 Oran bozuk ve bozukluğun yönü sistematik.
 
-**7. Bir denetim yalnızca sorduğu soruyu yanıtlar.**
+**7. Bir denetim yalnızca sorduğu soruyu yanıtlar; bir işlem yalnızca
+doğrulanan hedefinde gerçekleşmiş sayılır.**
 Kişisel bilgi taraması işlevsel hatayı, geçmiş taraması yeni yazılan metni
 bulmuyor — Vaka 12 ikisini de gösteriyor. Aynı alan farklı sebeplerle ayrı ayrı
 denetlenmeli, ve denetim kendi çıktısını da kapsamalı.
+
+Vaka 16 aynı kuralı işlemlere taşıyor: **çoklu hedefli bir işlemin başarısı hedef
+başına doğrulanır; birinin çıktısı diğerinin kanıtı değildir.** Pratik karşılığı
+mekanik ve dar:
+
+1. İki depoya push, iki dosyaya yazma, iki ortama dağıtım — kaç hedef varsa o
+   kadar doğrulama. "Komut hata vermedi" hedef sayısından bağımsız tek bir
+   gözlemdir.
+2. Doğrulama, işlemin gerçekten dokunduğu tarafa dokunmalı. `git remote -v`
+   yalnızca yerel yapılandırmayı okur ve uzak tarafın var olduğunu sınamaz;
+   bunu `ls-remote`, `fetch` veya `push` yapar. Yapılandırmayı okumak,
+   yapılandırmanın işe yaradığını göstermez.
+3. Bir doğrulama başarısız olduğunda, "yok" ile "boş"u ayırt et. `origin/main`
+   yoksa `log origin/main..HEAD` sıfır değil hata döndürür; ikisi ekranda
+   benzer görünür ve anlamları zıttır.
+4. Doğrulanmamış bir varsayım kalıcı nota olgu olarak yazılmaz. Vaka 16'da
+   yazıldı ve sonraki oturumlara olgu olarak taşındı; §1'in kendi kuralı zaten
+   bunu yasaklıyordu.
 
 **8. Sohbet asistanının yön ve dejenere durum iddiaları doğrulanmadan
 alınmıyor.**
