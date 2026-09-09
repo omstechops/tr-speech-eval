@@ -7,7 +7,8 @@ yeni bir hata sınıfı, biri var olan bir sınıfın örüntüye dönüştüğ�
 denetimin kendi sorusunun dışını görmediğini. Vaka 13 ve 14, 9 Eylül'de, aynı
 sebeple: biri Vaka 1'in sınıfına ikinci örneği verdi ve tek vakada görünmeyen bir
 kaynak örüntüsünü görünür kıldı, öteki en kalabalık sınıfın dördüncü örneği oldu
-ve o sınıfın sınırını genişletti.
+ve o sınıfın sınırını genişletti. Vaka 15 aynı sınıfın beşinci örneği ve onu
+gözlem olmaktan çıkarıp çalışma kuralına dönüştürüyor (§3.5).
 
 **Neden tutuluyor:** Bu belge bir ilerleme raporu değil. Bir ölçüm çalışması
 kurulurken yapılan hataların ve onları yakalayan mekanizmaların kaydı. Çalışmanın
@@ -18,7 +19,7 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-On dört vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+On beş vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
 **Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
 yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
@@ -26,7 +27,7 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 |---|---|---|
 | Çapraz kontrol (AI → AI) | İç tutarsızlık, matematiksel ilişki hatası | 1, 4, **13** |
 | İnsan düzeltmesi | Niyet okuma hatası, odak kayması | 2 |
-| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11, 14** |
+| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11, 14, 15** |
 | Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
 | Hiçbiri (geç yakalandı) | Her iki tarafın ortak kör noktası | 3, 7 |
 | **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
@@ -34,11 +35,12 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
 Dört şey değişti.
 
-**Birincisi: "uygulamaya geçmek" artık dört vakalı, en kalabalık sınıf ve sınırı
-genişledi.** 6, 8, 11 ve 14 aynı yapıya sahip: bir varsayım tasarım turlarında
-yanlışlanamadı, uygulama yoluna girilince yanlışlandı. Dört örnek, tek tek
-anlatılacak vaka olmaktan çıkıp **yöntem hâline geliyor**: bir varsayımı sınamanın
-en ucuz yolu onu tartışmak değil, onu uygulanabilir en küçük adıma dönüştürmek.
+**Birincisi: "uygulamaya geçmek" artık beş vakalı, en kalabalık sınıf ve sınırı
+iki kez genişledi.** 6, 8, 11, 14 ve 15 aynı yapıya sahip: bir varsayım tasarım
+turlarında yanlışlanamadı, uygulama yoluna girilince yanlışlandı. Beş örnek, tek
+tek anlatılacak vaka olmaktan çıkıp **yöntem hâline geliyor**: bir varsayımı
+sınamanın en ucuz yolu onu tartışmak değil, onu uygulanabilir en küçük adıma
+dönüştürmek.
 Vaka 11 ayrıca iki mekanizmaya birden ait — kaynağa bakmak *ve* uygulamaya
 geçmek — çünkü sorulacak soruyu uygulama üretti, cevabı kaynak verdi.
 
@@ -48,6 +50,14 @@ kullanıcıya gösterilmiş bir test, kendi deposundaki bir sabitle çelişiyord
 çelişki ancak test koşulunca göründü. Yani "uygulamaya geçmek" yalnızca tasarımın
 sınavı değil; test yazmak da bir tasarım eylemi ve aynı körlüğü miras alıyor.
 Koşulmamış test, okunmuş bir varsayımdan daha güvenilir değil.
+
+Vaka 15 aynı sınırı bir adım daha taşıyor ve **Vaka 14'ün alt türü** olarak
+duruyor. Vaka 14'te çelişki test ile kod arasındaydı; Vaka 15'te kod tarafı yok,
+**iki test birbiriyle çelişiyor.** Yanlışlanan şey ne tasarım ne de tasarımı
+sınayacak araç: şartnamenin kendi iç tutarlılığı. Alt tür şöyle yazılabilir: *bir
+şartname yeterince büyüdüğünde kendi içinde çelişebilir, ve bu çelişme yalnızca
+yürütmeyle görünür.* Her testi tek tek okumak yetmiyor, çünkü her biri tek başına
+doğru; yanlış olan yalnızca birleşimleri ve birleşimlerini hiçbir dosya yazmıyor.
 
 **İkincisi: Vaka 10 önceki dokuzun hiçbirine benzemiyor.** Onların hepsi
 "yanlıştı, düzeltildi" idi: yanlış test önerisi, kaçırılan körleme, eskimiş model
@@ -340,6 +350,51 @@ gelmesi: gösterilen ile depoya giren aynı metin değil.
 **Sonuç:** Üç sarmalayıcı kaldırıldı. Eşik ayrıca iki yönlü sınandı — k=10 uyarır,
 `MIN_CLUSTERS` uyarmaz — çünkü tek yönlü eşik testi kaydığında sessiz kayar.
 
+### Vaka 15 — İki test birbiriyle çelişti; çelişki kodda değil şartnamenin içindeydi
+**Kim yaptı:** Claude Code, `power_analysis()` test süitini yazarken — gövdeden
+önce, Vaka 14'ün düzeltmesiyle aynı oturumda. Aynı dosyada iki test, birbirinden
+habersiz, uyarı eşiği hakkında uyuşmaz iki şey istedi:
+
+- `test_the_threshold_itself_does_not_warn` eşiği `MIN_CLUSTERS`'a çiviliyor —
+  "MIN_CLUSTERS is the first count that is **not** warned about", yani k=25
+  uyarmaz ve 25'in altı uyarır.
+- R10'un tekdüzelik testi k=20 ile güç hesaplatıyor. 20 < 25 olduğu için uyarı
+  çıkıyor, `pyproject`'te `filterwarnings = ["error"]` var, ve uyarı hakkında
+  hiçbir iddiası olmayan bir test uyarı yüzünden düşüyor.
+
+k=10 uyarsın, k=20 uyarmasın, k=25 uyarmasın diyen bir eşik yok. İki test tek tek
+makul; birlikte tutarsızlar.
+
+**Kim yakaladı:** Claude Code, gövdeyi yazıp süiti koşarken. Süit yazıldı, gözden
+geçirildi, kullanıcıya sunuldu ve **bir kez Vaka 14 için düzeltildi** — çelişki
+üç okumanın da içinden geçti.
+
+**Sınıf:** Vaka 6, 8, 11, 14 ile aynı, ama Vaka 14'ün **alt türü.** Vaka 14'te
+çelişki test ile kod arasındaydı: test dosyasında "k=40", `bootstrap.py`'de "25",
+ve ikisinin ilişkisi hiçbir yerde yazılı değil. Burada kod tarafı hiç yok. İki
+testin ortak sonucu — "hangi k değerleri uyarır" — tek bir yerde yazılsaydı
+çelişki görünürdü, ama o cümle hiçbir dosyada durmuyor; yalnızca iki testin
+birleşiminden çıkıyor.
+
+**Neden okumakla yakalanmadı:** İki test dosyada yüzlerce satır arayla duruyor ve
+hiçbiri ötekine atıf yapmıyor. Her ikisi de kendi başına doğru; yanlış olan
+birleşim. Vaka 14'ün dersi ("koşulmamış test, sınanmamış varsayımdır") burada bir
+katman yukarı çıkıyor: koşulmamış bir **süit**, tek tek doğru testlerden kurulu
+olsa bile sınanmamış bir bütündür.
+
+**Maliyet:** Sıfıra yakın. Gövde yazıldı, süit koşuldu, tek kırmızı buydu ve
+sebebi tek satırda ayrıştı. Uygulamayı yazan taraf çelişkiyi kendiliğinden
+çözmedi, kullanıcıya iki seçenekle getirdi — şartnameyi sessizce değiştirmek,
+düzeltilen şeyin ne olduğunu kaydın dışında bırakırdı.
+
+**Sonuç:** Uyarı yalnızca o üretimde `warnings.catch_warnings()` ile bastırıldı,
+k=20 korundu. Az kümeyle çalışmak gerçek bir senaryo ve fonksiyonun orada da
+doğru davranması gerekiyor; k'yi eşiğin üstüne çekmek süiti susturur ama test
+kapsamını daraltırdı. `MIN_CLUSTERS` oynatılmadı — o `bootstrap.py`'ın ölçülmüş
+sabiti ve test rahatlığı için değişmez. Bastırmanın **neden** orada olduğu testin
+docstring'ine yazıldı; yazılmasaydı altı ay sonra sarmalayıcının kendisi bir soru
+olurdu.
+
 ---
 
 ## 3. Çıkarımlar
@@ -368,20 +423,33 @@ olmadığını sormak.** Vaka 9'un kuralı (kaynağından doğrula) buna eşlik 
 ama yerini tutmuyor — TED'in politikası okunsaydı da etik kurul takvimi
 görünmezdi.
 
-**5. Bir varsayımı sınamanın en ucuz yolu, onu tartışmak değil.**
-Vaka 6, 8, 11 ve 14 aynı yapıda ve dördü birlikte belgenin en kalabalık sınıfı:
-tasarım turlarında kapanmayan şey, uygulamanın en küçük adımı yazılırken kapandı.
-Vaka 11'de mekanizma daha da özel — yanlışlayan şey kodun kendisi değil, **kod
-yazmaya çalışmanın ürettiği soru** oldu ("girdi zaten neye benziyor?"). Sonuç:
-bir tasarım turu, uygulanabilir bir adım üretmeden kapatılmıyor.
+**5. Bir varsayımı sınamanın en ucuz yolu, onu tartışmak değil. Artık gözlem
+değil, çalışma kuralı.**
+Vaka 6, 8, 11, 14 ve 15 aynı yapıda ve beşi birlikte belgenin en kalabalık
+sınıfı: tasarım turlarında kapanmayan şey, uygulamanın en küçük adımı yazılırken
+kapandı. Vaka 11'de mekanizma daha da özel — yanlışlayan şey kodun kendisi değil,
+**kod yazmaya çalışmanın ürettiği soru** oldu ("girdi zaten neye benziyor?").
+Beş örnek eşiği geçtiği için madde artık bir gözlemin anlatımı değil, uyulacak
+bir kural:
 
-Vaka 14 kuralı bir katman yukarı taşıyor: **bu, testlerin kendisi için de
-geçerli.** Bir test yazmak bir tasarım eylemidir ve tasarımın körlüğünü miras
-alır; koşulmamış bir test, gerekçesi ne kadar iyi yazılmış olursa olsun, hâlâ
-sınanmamış bir varsayımdır. Pratik karşılığı dar ve mekanik: kırmızı kalması
-beklenen bir süit bile, kırmızılığının **beklenen sebeple** olduğunu görmek için
-koşulur. Vaka 14'te süit gerçekten de baştan sona kırmızıydı; hatayı gösteren şey
-kırmızılık değil, üç testin yanlış istisna tipiyle kırmızı olmasıydı.
+1. **Bir tasarım turu, uygulanabilir bir adım üretmeden kapatılmaz.** Kapandı
+   sayılan tur, en küçük yürütülebilir adımı yazılana kadar açık sayılır.
+2. **Bir şartname, koşulmadan gözden geçirilmiş sayılmaz.** Test yazmak bir
+   tasarım eylemidir ve tasarımın körlüğünü miras alır; koşulmamış bir test,
+   gerekçesi ne kadar iyi yazılmış olursa olsun sınanmamış bir varsayımdır.
+   Kırmızı kalması beklenen bir süit bile, kırmızılığının **beklenen sebeple**
+   olduğunu görmek için koşulur. Vaka 14'te süit baştan sona kırmızıydı; hatayı
+   gösteren şey kırmızılık değil, üç testin yanlış istisna tipiyle kırmızı
+   olmasıydı.
+3. **Süit bir bütün olarak da sınanır, tek tek testler olarak da.** Vaka 15'in
+   alt türü budur: bir şartname yeterince büyüdüğünde kendi içinde çelişebilir,
+   ve bu çelişme yalnızca yürütmeyle görünür. Testleri tek tek okumak yetmez,
+   çünkü her biri tek başına doğru olabilir ve yanlış olan yalnızca birleşimleri
+   olabilir — birleşimi ise hiçbir dosya yazmaz.
+4. **Şartname ile kod çeliştiğinde, çelişki uygulamayı yazan tarafça sessizce
+   çözülmez.** Hangi tarafın yanlış olduğu bir karardır; kaydı tutulur ve sahibi
+   verir. Vaka 15'te iki seçenek getirildi, seçim yapıldı ve seçimin gerekçesi
+   koda girdi.
 
 **6. Hız devredilebilir işte, yavaşlık devredilemez işte.**
 İki günde ortam, iki paket, 17 test, körleme modülü ve bir plan revizyonu
