@@ -19,7 +19,7 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-On altı vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+On yedi vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
 **Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
 yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
@@ -27,7 +27,7 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 |---|---|---|
 | Çapraz kontrol (AI → AI) | İç tutarsızlık, matematiksel ilişki hatası | 1, 4, **13** |
 | İnsan düzeltmesi | Niyet okuma hatası, odak kayması | 2 |
-| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11, 14, 15** |
+| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11, 14, 15, 17** |
 | Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
 | Hiçbiri (geç yakalandı) | Her iki tarafın ortak kör noktası | 3, 7 |
 | **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
@@ -58,6 +58,12 @@ sınayacak araç: şartnamenin kendi iç tutarlılığı. Alt tür şöyle yazı
 şartname yeterince büyüdüğünde kendi içinde çelişebilir, ve bu çelişme yalnızca
 yürütmeyle görünür.* Her testi tek tek okumak yetmiyor, çünkü her biri tek başına
 doğru; yanlış olan yalnızca birleşimleri ve birleşimlerini hiçbir dosya yazmıyor.
+
+Vaka 17 aynı alt türü bir ölçek küçültüyor ve sınırın nerede **olmadığını**
+gösteriyor: çelişki iki test arasında bile değil, **tek bir docstring'in
+içinde.** İki cümle ayrı ayrı doğru, arka arkaya yazıldıklarında yanlış bir
+önerme kuruyor. Yani "birleşim" için iki dosya, hatta iki testten fazlası
+gerekmiyor — bitişik iki cümle yetiyor.
 
 **İkincisi: Vaka 10 önceki dokuzun hiçbirine benzemiyor.** Onların hepsi
 "yanlıştı, düzeltildi" idi: yanlış test önerisi, kaçırılan körleme, eskimiş model
@@ -469,6 +475,56 @@ ile "boş"un aynı ekranda benzer görünmesi bu vakada iki kez işe karıştı.
 Uzak taraf sıfır ref taşıdığı için bölünmeden bu yana biriken **22 commit'in
 tamamı** push bekliyor. Kural §3.7'ye eklendi.
 
+### Vaka 17 — Tek docstring'in içinde iki doğru cümle, yanlış bir önerme
+**Kim yaptı:** Claude Code, `power_analysis()` test süitini yazarken (Vaka 14 ve
+15 ile aynı dosya). R7'nin docstring'i şunu diyordu:
+
+> *"the 0.03 tolerance below is a tolerance on Monte Carlo noise, not a threshold
+> that decides anything. Both seeds are fixed, so a failure is reproducible and
+> is never bad luck."*
+
+İki yarısı da doğru. Tolerans gerçekten bir karar eşiği değil, gürültü payı. Ve
+tohumlar gerçekten sabit, dolayısıyla hata gerçekten yeniden üretilebilir.
+Birleşimleri ise yanlış: **sabit tohum gürültüyü kaldırmıyor, donduruyor.**
+Yeniden üretilebilir bir hata pekâlâ şanssızlık olabilir — hep aynı şanssızlık
+olur, o kadar. Cümle "reproducible" ile "not noise"u eşitliyor; ikisi eşit değil.
+
+**Kim yakaladı:** Simülasyon yolu yazılıp süit koşulunca. R7 tam sınırda düştü:
+ampirik 0.77, sapma `0.030000000000000027`. Docstring'in iddiasına göre bunun
+tek sebebi uygulamanın yanlış olması olabilirdi.
+
+**Yakalayan şey testi koşmak değil, iddiayı ölçmek oldu.** Önce yanlılık
+sınandı: `n_sim=20000` ile çözülen MDE, 5000 denemelik bağımsız kontrolde 0.7994
+verdi — kestirici yansız, kod doğru. Sonra yayılım ölçüldü: `n_sim=600`'de,
+testin sabitlediği ayarda, 14 tohum üzerinden ampirik SD 0.0133 ve aralık
+0.760–0.805. Tolerans birleşik gürültünün ~1.3 katıymış ve 14 tohumun 2'si
+düşüyormuş. Sabitlenen tohum yanlış tarafa düşmüş.
+
+**Sınıf:** Vaka 15'in alt türü, bir ölçek küçüğü. Vaka 15'te çelişki iki test
+arasındaydı ve "birleşimi hiçbir dosya yazmıyor" demek anlamlıydı. Burada
+birleşim tek bir docstring'in iki bitişik cümlesi. Tek tek okumak yine yetmiyor,
+ama bu kez "tek tek okumak" bir paragrafı okumak demek.
+
+**Neden okumakla yakalanmadı:** Cümle akıcı ve kendinden emin. "Sabit tohum →
+tekrarlanabilir → şans değil" zinciri sezgisel olarak doğru duruyor ve ilk iki
+halkası gerçekten doğru. Yanlış olan üçüncü halka, ve o halka yazılmamış;
+okuyucunun kafasında kuruluyor. Vaka 15'te de böyleydi, Vaka 14'te de.
+
+**Maliyet:** Sıfıra yakın, ama sıfır değil. Cümleye inanılsaydı doğru bir
+uygulama yanlış sanılır, hata kodda aranır ve kestirici "düzeltilmeye"
+çalışılırdı. Ölçüm iki deney ve birkaç dakika sürdü; onu yapmama kararı da
+alınabilirdi.
+
+**Sonuç:** Tolerans `0.05`'e çıkarıldı, ama asıl düzeltme sayı değil, sayının
+**neye bağlandığı**. Docstring artık ölçülen SD'yi (0.0133, 14 tohum), aralığı
+ve yansızlık kontrolünü (`n_sim=20000` → 0.7994) taşıyor, ve `n_sim` ya da
+deneme sayısı değişirse toleransın yeniden ölçülmesi gerektiğini açıkça
+söylüyor. Yanlış cümle şununla değişti: *tohumlar sabit olduğu için hata yeniden
+üretilebilir, ama gürültü kaldırılmış değil; tolerans ölçülen Monte Carlo
+yayılımını kapsayacak şekilde seçildi.* `n_sim`'i büyütmek de düşünüldü ve
+reddedildi — süit 20 saniyeden ~5 dakikaya çıkardı, ve atlanacak kadar yavaş bir
+test koşulmayan bir testtir (§3.5.2).
+
 ---
 
 ## 3. Çıkarımlar
@@ -519,11 +575,21 @@ bir kural:
    alt türü budur: bir şartname yeterince büyüdüğünde kendi içinde çelişebilir,
    ve bu çelişme yalnızca yürütmeyle görünür. Testleri tek tek okumak yetmez,
    çünkü her biri tek başına doğru olabilir ve yanlış olan yalnızca birleşimleri
-   olabilir — birleşimi ise hiçbir dosya yazmaz.
+   olabilir — birleşimi ise hiçbir dosya yazmaz. Vaka 17 bunun alt sınırını
+   veriyor: birleşim iki dosya değil, **bitişik iki cümle** olabilir. Doğru
+   cümlelerin ardarda dizilmesi yanlış bir önerme üretebilir, ve bu, cümleleri
+   tek tek okuyarak bulunamaz.
 4. **Şartname ile kod çeliştiğinde, çelişki uygulamayı yazan tarafça sessizce
    çözülmez.** Hangi tarafın yanlış olduğu bir karardır; kaydı tutulur ve sahibi
    verir. Vaka 15'te iki seçenek getirildi, seçim yapıldı ve seçimin gerekçesi
    koda girdi.
+5. **Bir testin kırmızılığı, testin kendi açıklamasına göre yorumlanmaz.**
+   R7'nin docstring'i düşmenin tek sebebinin uygulama hatası olabileceğini
+   söylüyordu; ölçüm bunun yanlış olduğunu gösterdi. Bir tolerans savunulacaksa
+   ölçülür, ve bu sırayla: önce kestirici yanlı mı (yüksek hassasiyetle çöz,
+   bağımsız kontrol et), sonra testin sabitlediği ayarda yayılım ne (çok
+   tohumla). İkinci ölçüm ancak birincisi temizse anlamlıdır, çünkü yanlı bir
+   kestiricinin yayılımı toleransı değil kodu ilgilendirir.
 
 **6. Hız devredilebilir işte, yavaşlık devredilemez işte.**
 İki günde ortam, iki paket, 17 test, körleme modülü ve bir plan revizyonu
