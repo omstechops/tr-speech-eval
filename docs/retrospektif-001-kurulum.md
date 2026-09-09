@@ -515,6 +515,24 @@ uygulama yanlış sanılır, hata kodda aranır ve kestirici "düzeltilmeye"
 çalışılırdı. Ölçüm iki deney ve birkaç dakika sürdü; onu yapmama kararı da
 alınabilirdi.
 
+**Bu vakayı testi koşmak yakalayamazdı, ve sebebi kaydedilmeye değer.** Vaka 14
+ve 15'te yakalayan mekanizma yürütmenin kendisiydi: süit koşuldu, kırmızılık
+çıktı, kırmızılığın sebebi tek bir okumayla ayrıştı. Burada süit yine koşuldu ve
+yine kırmızı verdi — ama kırmızılık **iki hipotezi ayırt etmiyordu.** "Uygulama
+yanlış" ve "gürültü sınırda" aynı ekranı üretiyor; ikisinin de gözlemi tek bir
+başarısız `assert`. Testi tekrar koşmak aynı ekranı tekrar üretirdi, çünkü
+tohumlar sabit. Ayıran şey **testin dışında koşulan bir deney** oldu:
+`n_sim=20000` ile çözüp bağımsız kontrol etmek, yani testin sabitlediği ayarı
+kasten terk etmek. Süit bu deneyi barındıramaz — 20 saniyelik bir süitin içinde
+duramayacak kadar pahalı, ve zaten testin değil testin *toleransının* sınanması.
+
+Bu, §3.5'in beşinci kuralının kendi örneği: bir testin kırmızılığı, testin kendi
+açıklamasına göre yorumlanmıyor. Kural §3.7'nin `remote -v` örneğini taşıması
+gibi kendi örneğini taşıyor — ve iki örnek aynı şeyi söylüyor: bir gözlemin ne
+anlama geldiği, o gözlemi üreten aracın ne ölçtüğüne bağlı. `remote -v` yerel
+yapılandırmayı okuyor, uzak tarafı değil; kırmızı bir `assert` toleransın
+aşıldığını söylüyor, sebebini değil.
+
 **Sonuç:** Tolerans `0.05`'e çıkarıldı, ama asıl düzeltme sayı değil, sayının
 **neye bağlandığı**. Docstring artık ölçülen SD'yi (0.0133, 14 tohum), aralığı
 ve yansızlık kontrolünü (`n_sim=20000` → 0.7994) taşıyor, ve `n_sim` ya da
