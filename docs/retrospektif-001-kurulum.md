@@ -19,7 +19,7 @@ kendisi ilk veri kümesi sayılır.
 
 ## 1. Ana bulgu
 
-On yedi vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
+On sekiz vaka kaydedildi. Kronolojik olarak bakıldığında rastgele görünüyorlar.
 **Yakalayan mekanizmaya göre gruplandığında sınıflar çıkıyor** — ve her sınıf
 yalnızca kendi mekanizmasıyla yakalanabiliyor.
 
@@ -27,7 +27,7 @@ yalnızca kendi mekanizmasıyla yakalanabiliyor.
 |---|---|---|
 | Çapraz kontrol (AI → AI) | İç tutarsızlık, matematiksel ilişki hatası | 1, 4, **13** |
 | İnsan düzeltmesi | Niyet okuma hatası, odak kayması | 2 |
-| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11, 14, 15, 17** |
+| **Uygulamaya geçmek** | **Uygulanamaz veya eksik tasarım varsayımı** | **6, 8, 11, 14, 15, 17, 18** |
 | Dış otoriteye sormak | Paylaşılan eskimiş bilgi | 5, 9, 11 |
 | Hiçbiri (geç yakalandı) | Her iki tarafın ortak kör noktası | 3, 7 |
 | **Sınıf dışı** | **Doğru kararın maliyeti** | **10** |
@@ -64,6 +64,15 @@ gösteriyor: çelişki iki test arasında bile değil, **tek bir docstring'in
 içinde.** İki cümle ayrı ayrı doğru, arka arkaya yazıldıklarında yanlış bir
 önerme kuruyor. Yani "birleşim" için iki dosya, hatta iki testten fazlası
 gerekmiyor — bitişik iki cümle yetiyor.
+
+Vaka 18 aynı sınıfa giriyor ama yanlışlanan şeyin **kapsamı** farklı.
+6, 8, 11, 14, 15 ve 17'de yanlışlanan varsayım her koşulda yanlıştı; burada
+varsayım koşulların bir kısmında doğru, bir kısmında yanlış, ve doğru olduğu
+kısımda **doğru sonuç veriyor.** Uygulamaya geçmenin yakalama sebebi de bu:
+tartışmak "her zaman mı?" sorusunu sormuyor, somut bir vaka seçmek zorunda
+kalmak soruyor. Test yazmak iki kategori kümesi arasında seçim yapmayı gerektirdi
+ve ikisi farklı davrandı; tasarım notunu okumak bunu üretemezdi, çünkü cümle
+akıcı ve yönü doğruydu — yanlış olan **niceleyicisiydi.**
 
 **İkincisi: Vaka 10 önceki dokuzun hiçbirine benzemiyor.** Onların hepsi
 "yanlıştı, düzeltildi" idi: yanlış test önerisi, kaçırılan körleme, eskimiş model
@@ -542,6 +551,71 @@ söylüyor. Yanlış cümle şununla değişti: *tohumlar sabit olduğu için ha
 yayılımını kapsayacak şekilde seçildi.* `n_sim`'i büyütmek de düşünüldü ve
 reddedildi — süit 20 saniyeden ~5 dakikaya çıkardı, ve atlanacak kadar yavaş bir
 test koşulmayan bir testtir (§3.5.2).
+
+---
+
+### Vaka 18 — Hata girdiye bağlı kayboluyor, kaybolduğunda doğru cevap veriyor
+**Kim yaptı:** İddia sahibinin, yazılı hâli Claude Code'un. `judge_agreement()`
+tasarımında D4 kapanırken (`categories` zorunlu ve sıralı) gerekçe şuydu:
+*kullanılmayan bir kategoriyi düşürmek ağırlık matrisini küçültür ve kalan her
+mesafeyi kaydırır.* Tasarım notunun §3'ü bunu bu genellikle yazdı: "her mesafe
+değişir, çünkü lineer ağırlıklar ölçekteki konumları sayar."
+
+**Gerçek:** İddia bazen doğru. Lineer ağırlık `|i-j| / (k-1)` ile normalize
+edildiği için, kalan kategoriler hâlâ **eşit aralıklıysa** bütün mesafeler aynı
+çarpanla ölçekleniyor, çarpan gözlenen ve beklenen toplamlar arasında sadeleşiyor
+ve kappa **hiç değişmiyor**. Kalan kategoriler eşit aralıklı değilse mesafeler
+birbirine göre kayıyor ve kappa değişiyor. Ağırlıksız kappa ise iki durumda da
+etkilenmiyor.
+
+Ölçülen sayılar (1-5 ölçeği, lineer ağırlık, elle kurulmuş tablolar, `sklearn`
+ikinci tanık):
+
+| Kullanılan kategoriler | Tam küme ilan edilince | Kullanılmayanlar düşünce |
+|---|---|---|
+| 1, 2, 3, 4 | 0.705607476636 | 0.705607476636 (15 ondalığa kadar aynı) |
+| 1, 2, 5 | 0.742054352833 | 0.714156079855 |
+
+**Kim yakaladı:** J7'yi yazmak. Testin somut bir veri kümesi seçmesi gerekiyordu
+ve "kullanılmayan kategori" için iki doğal seçim var: uçtan biri, ortadan biri.
+İkisi farklı davrandı. Notu okumak bunu üretmezdi; cümle akıcıydı ve **yönü
+doğruydu** — yanlış olan niceleyicisiydi, "her zaman" ile "bazen" arasındaki fark.
+
+**Neden her zaman yanlış olmasından kötü.** Her zaman yanlış olan bir kütüphane
+ilk karşılaştırmada yakalanır: birileri iki farklı araçla aynı veriyi hesaplar,
+sayılar tutmaz, sebep aranır. Bazen doğru olan yakalanmaz. Kategori kümesini
+veriden çıkaran bir kütüphane, kontrol edilen veri kümesinde tesadüfen doğru
+sonucu verir, denetim "tutuyor" der, ve kontrol edilmeyen veride sessizce sapar.
+Üstelik hangi durumda olunduğu **çıktının hiçbir yerinde yazmıyor**: aynı
+fonksiyon, aynı imza, aynı sonuç nesnesi. Tablo ve prevalence index iki durumda
+da değişiyor, ama onlar da ancak bakılırsa görünür ve zaten katsayıyı okuyan kişi
+katsayıyı okuyor.
+
+**Sınıf: Vaka 17'nin akrabası, ama ayna simetrisiyle.** Vaka 17'de gözlem
+kırmızılıktı ve kırmızılık iki hipotezi ayırt etmiyordu — "uygulama yanlış" ile
+"gürültü sınırda" aynı ekranı üretiyordu. Burada gözlem **doğru sonuç** ve doğru
+sonuç iki durumu ayırt etmiyor: "kategoriler doğru ilan edildi" ile "kategoriler
+veriden çıkarıldı ama bu veride fark etmedi" aynı sayıyı üretiyor. İkisi de aynı
+şeyi söylüyor: bir gözlem, taşıyor göründüğü ayrımı taşımayabilir. Vaka 17'de bu
+kırmızıya, burada yeşile ait.
+
+**Maliyet:** Bir tur. Not bir tur boyunca fazla geniş bir iddia taşıdı. Düzeltme
+olmasaydı J7 tek yönlü yazılırdı: "düşürmek katsayıyı değiştirir" diye tek bir
+differential assert, veri de tesadüfen o iddiayı doğrulayan taraftan seçilirdi,
+test yeşil olurdu ve **notun iddiasından zayıf bir şeyi pinlerdi.** Yani hata
+kendi testini de kalıba dökecekti.
+
+**Sonuç:** Tasarım notu §3 ve docstring'deki varsayım 2 yeniden yazıldı; ikisi de
+artık koşulu söylüyor. D4 kararı değişmedi — gerekçesi güçlendi: hata *aralıklı*
+olduğu için çıkarım yapan proje bazen tesadüfen doğru sonuç alıyor ve hangi
+durumda olduğunu hiçbir şekilde göremiyor. J7 iki yarılı yazıldı: bir yarısı
+katsayının kaydığı vakayı, öteki yarısı **kaydırmadığı** vakayı pinliyor, ve asıl
+tuzağı belgeleyen ikinci yarı.
+
+**§3'e kural olarak girip girmeyeceği sahibinin kararı.** Aday cümle: *bir
+iddianın "her zaman" mı "bazen" mi olduğunu tartışarak değil, iddiayı
+yanlışlayabilecek en küçük somut vakayı kurarak kontrol et; niceleyici, yön kadar
+görünür değil.*
 
 ---
 
