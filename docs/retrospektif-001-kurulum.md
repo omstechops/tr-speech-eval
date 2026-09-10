@@ -612,10 +612,11 @@ durumda olduğunu hiçbir şekilde göremiyor. J7 iki yarılı yazıldı: bir ya
 katsayının kaydığı vakayı, öteki yarısı **kaydırmadığı** vakayı pinliyor, ve asıl
 tuzağı belgeleyen ikinci yarı.
 
-**§3'e kural olarak girip girmeyeceği sahibinin kararı.** Aday cümle: *bir
-iddianın "her zaman" mı "bazen" mi olduğunu tartışarak değil, iddiayı
-yanlışlayabilecek en küçük somut vakayı kurarak kontrol et; niceleyici, yön kadar
-görünür değil.*
+**§3.5'e altıncı madde olarak girdi**, sahibinin kendi cümlesiyle: *doğru bir
+sonuç, doğru olduğunun kanıtı değildir; bir hata girdiye bağlı olarak
+kaybolabilir ve kaybolduğu durumda doğru sonuç üretir, bu yüzden bir davranış tek
+örnekle doğrulanmaz ve hatanın görüneceği koşul ayrıca aranır.* Beşinci maddenin
+yanına, aynası olduğu için.
 
 ---
 
@@ -682,6 +683,14 @@ bir kural:
    bağımsız kontrol et), sonra testin sabitlediği ayarda yayılım ne (çok
    tohumla). İkinci ölçüm ancak birincisi temizse anlamlıdır, çünkü yanlı bir
    kestiricinin yayılımı toleransı değil kodu ilgilendirir.
+6. **Doğru bir sonuç, doğru olduğunun kanıtı değildir.** Bir hata girdiye bağlı
+   olarak kaybolabilir ve kaybolduğu durumda doğru sonuç üretir. Bu yüzden bir
+   davranış tek örnekle doğrulanmaz; hatanın görüneceği koşul ayrıca aranır.
+   Vaka 18 bunun ölçüsünü veriyor: aynı iddia bir kategori kümesinde yanlış, bir
+   başkasında 15 ondalığa kadar doğru. Beşinci maddenin aynası — o kırmızılığın
+   neyi söylediği hakkında, bu yeşilliğin. İkisi birlikte tek kural: bir gözlem,
+   taşıyor göründüğü ayrımı taşımayabilir, ve hangisi olduğu gözleme bakarak
+   değil onu üreten koşulu kurarak anlaşılır.
 
 **6. Hız devredilebilir işte, yavaşlık devredilemez işte.**
 İki günde ortam, iki paket, 17 test, körleme modülü ve bir plan revizyonu
