@@ -965,10 +965,31 @@ Assumption checks, run before the test and recorded either way:
 Computed separately for the two instruments, on the double-rated subsets:
 
 - Preference agreement: human-human and human-judge.
-- Absolute agreement: human-human and human-judge, with
-  `[DECIDE: quadratic-weighted Cohen's kappa / Krippendorff's alpha]`. Weighted
-  variants suit ordinal scales because a 4-vs-5 disagreement is not a 1-vs-5
-  disagreement — confirm this is intended.
+- Absolute agreement: human-human and human-judge, with **linear-weighted
+  Cohen's kappa**, computed by `evalstat.judge_agreement()` with the ceiling
+  comparison, on cluster-resampled intervals.
+
+  **Decision, closed (11 September).** The open item here read `[DECIDE:
+  quadratic-weighted Cohen's kappa / Krippendorff's alpha]`; both alternatives
+  were considered and neither was taken, and the reasons stay on the record so
+  that the question is not reopened as though it had never been asked:
+
+  - *Quadratic weighting* was rejected in `evalstat`'s design record (D2). It
+    charges a one-step disagreement a quarter of what it charges a two-step
+    one, which on this scale forgives adjacent disagreement almost for free —
+    and adjacent disagreement is the thing being measured: whether a judge and a
+    human separate a 3 from a 4 is the question, not whether they separate a 1
+    from a 5. Linear weighting charges distance in proportion to distance and
+    keeps that confusion visible.
+  - *Krippendorff's alpha* is out of scope (D3), deferred rather than rejected.
+    Its two advantages over kappa are more than two raters and incomplete data;
+    this study has two raters per comparison and complete rating, so both
+    advantages would be paid for and neither used. A design with a third rater
+    or dropped items is the one that makes it worth a second coefficient.
+
+  The weighted-variant reasoning the open item carried — a 4-vs-5 disagreement
+  is not a 1-vs-5 disagreement — holds and is why the weighting is linear
+  rather than absent.
 
 **Is the judge closer to humans on preference or on absolute rating?** This
 comparison is declared here as a planned S2 outcome rather than an incidental
@@ -1220,6 +1241,63 @@ question is recorded in `evalstat`'s `docs/design/power_analysis.md` rather than
 here: whether the published curve quotes power at the error rate the procedure
 actually runs at, which is the default, or at an error rate calibrated back to
 5%.
+
+### 9.2 The agreement intervals do not cover at 95% either
+
+**Measured, not assumed, and not the same picture as 9.1.** `evalstat`'s
+coverage simulation for the agreement coefficient — 300 datasets at k = 40
+clusters, m = 3 items each, linear-weighted kappa on three categories, nominal
+95% percentile intervals, Monte Carlo standard error about 1.3 points — is run
+at three strengths of a cluster-level difficulty shared by both raters, and
+reports beside each the intra-cluster correlation of the per-item disagreement
+it produces:
+
+| Disagreement ICC | Item-level resampling (naive) | Cluster-level resampling |
+|---|---|---|
+| 0.01 (labels clustered, agreement not) | 0.920 | **0.927** |
+| 0.13 | 0.940 | **0.943** |
+| 0.26 | 0.920 | **0.950** |
+
+Two readings, and both go into how S2 is reported.
+
+The first is that **clustering acts on kappa only when the agreement itself is
+clustered.** With the latent quality of items as strongly clustered as in 9.1's
+setting and more (ρ = 0.5), but every rater's noise independent, the naive and
+the clustered interval are the same to within noise. Kappa is a ratio, and a
+component that moves its numerator and denominator together largely cancels.
+What `cluster=` corrects is a between-recording component in *disagreement* —
+some outputs contestable for everyone who rates them, others not — and that is
+the component this study's material is expected to carry, since post-edits
+differ in how contestable they are. Whether it does is measured, not assumed:
+`judge_agreement()` reports the disagreement ICC of the data it was given as
+`disagreement_icc` beside the coefficient, and that is the number that says
+which row of the table the study is in. It is the ICC of the disagreement
+indicator under the weighting in force and nothing more general; the plan
+quotes it for that purpose only.
+
+The second is that **neither interval reaches nominal at this size, with no
+clustering to blame.** At 120 items and forty clusters a bootstrapped kappa
+covers 92–93% in the first row, where clustering has nothing to act on. That is
+the small-sample behaviour of a resampled ratio, and it is the floor the
+reported interval sits on whatever the disagreement ICC turns out to be.
+
+**Reporting format, fixed here, in the wording of 9.1.** Every agreement
+interval this study reports is described as:
+
+> a nominal 95% interval whose measured coverage at k = 40 lies between
+> approximately 92% and 95%, depending on the measured disagreement ICC
+
+and the disagreement ICC is reported with it, so the reader can place the
+interval in the table above. Fixed now for the reason 9.1 gives: before the
+results exist.
+
+**Constraint on the open decision in 4.4.** The table is measured at forty
+clusters, which is the judge–human comparison's size on the preference tier.
+The human–human ceiling is measured on the second rater's subset, whose size
+is `[DECIDE]`; below 25 clusters `evalstat` warns that the interval
+under-covers in a direction it cannot quantify, and no coverage figure exists
+for that regime. The subset size therefore bounds how much the ceiling
+comparison can be trusted, and that bound is a further input to the decision.
 
 ## 10. Stopping rule and pre-written conclusions
 
