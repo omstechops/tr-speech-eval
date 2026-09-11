@@ -618,6 +618,48 @@ kaybolabilir ve kaybolduğu durumda doğru sonuç üretir, bu yüzden bir davran
 örnekle doğrulanmaz ve hatanın görüneceği koşul ayrıca aranır.* Beşinci maddenin
 yanına, aynası olduğu için.
 
+### Vaka 19 — Tek noktalı ölçüm, gürültünün üst ucundaydı
+**Kim yaptı:** Claude Code. `judge_agreement()`'ın katsayı gövdesi inince J11'in
+yavaş kapsama testi gerçek ölçümden düştü: 200 veri setinde naif aralık 0.955,
+kümeli 0.950. Teşhis iki parçaydı: (a) üreteç etiketleri kümeliyor ama uyumu
+kümelemiyor, uyumsuzluk göstergesinin ICC'si 0.010, dolayısıyla kümelemenin
+düzelteceği bir şey yok; (b) naif aralık nominalde, düzeltilecek bir açık yok.
+İkisi birlikte "kod bozuk değil, üreteç yanlış şeyi kümeliyor" diye kaydedildi.
+
+**Gerçek:** (a) doğru çıktı ve ertesi günün üç seviyeli ölçümüyle sabitlendi —
+uyumsuzluk kümelenmediğinde iki aralık gerçekten aynı. (b) yanlıştı. 1000 veri
+setinde aynı ayar naif 0.927 / kümeli 0.935 verdi; 300 setlik test 0.920 /
+0.927. **İki aralık da nominalin altında**, kümelemeyle ilgisi olmayan bir
+sebeple: 120 item'da bootstrap'lı bir oranın küçük örneklem davranışı. 0.955,
+200 setlik bir kapsama kestiriminin ±0.015'lik Monte Carlo hatasının üst
+ucuydu. Ölçüm doğruydu; ölçümün *okunması* — "0.955 ≈ 0.95, nominalde" —
+belirsizliğini taşımıyordu.
+
+**Kim yakaladı:** Sahibinin "iki-üç ICC seviyesi" istemesi. Seviyeleri seçmek
+için yapılan kenar taraması 200 sette ayrışmayan sayılar verdi, 1000 sete
+çıkarıldı, ve 1000 sette tau=0 satırı dünkü sayıyla uyuşmadı. Yani yakalayan şey
+bulguyu yeniden ölçmek değil, **başka bir soru için daha geniş ölçmek** oldu.
+İlk ölçümün yanına SE'si yazılsaydı — "0.955 ± 0.015" — "nominalde" iddiası o
+gün zaten bu kadar kesin kurulamazdı.
+
+**Sınıf:** §3.5.5'in eksik yarısı. O madde toleransın ölçülmesini ve ölçümün
+sırasını söylüyor (önce yanlılık, sonra yayılım); söylemediği şey, kapsama gibi
+bir ölçümün **kendisinin bir kestirim olduğu** ve kendi hatasıyla birlikte
+yazılmadıkça tek noktanın ne söylediğinin bilinmediği. `bootstrap.py`'ın tablosu
+bunu yapıyordu ("MC SE ≈ 0.015"); dünkü teşhis aynı tablodan çıkan tek bir
+sayıyı SE'sini düşürerek taşıdı.
+
+**Maliyet:** Sıfır koda, bir cümle belgeye. Teşhisin mekanizma yarısı doğru
+olduğu için üreteç kararı değişmedi; değişen şey modül docstring'ine ve analiz
+planına giren cümle — "naif aralık doğru" değil, "iki aralık da bu boyutta
+%92-93, ve kümeleme bunun sebebi değil".
+
+**Sonuç:** §3.5.5'e üçüncü adım olarak girdi, sahibinin cümlesiyle: *tek noktalı
+bir ölçüm kendi belirsizliğini göstermez; ölçümün kendisi de ölçülmeli.* Analiz
+planı §9.2 kappa aralıkları için §9.1'in raporlama kalıbını taşıyor ve ölçülen
+kapsamayı tek sayı olarak değil, uyumsuzluk ICC'sine bağlı bir aralık olarak
+veriyor.
+
 ---
 
 ## 3. Çıkarımlar
@@ -682,7 +724,11 @@ bir kural:
    ölçülür, ve bu sırayla: önce kestirici yanlı mı (yüksek hassasiyetle çöz,
    bağımsız kontrol et), sonra testin sabitlediği ayarda yayılım ne (çok
    tohumla). İkinci ölçüm ancak birincisi temizse anlamlıdır, çünkü yanlı bir
-   kestiricinin yayılımı toleransı değil kodu ilgilendirir.
+   kestiricinin yayılımı toleransı değil kodu ilgilendirir. Üçüncüsü, Vaka
+   19'dan: **tek noktalı bir ölçüm kendi belirsizliğini göstermez; ölçümün
+   kendisi de ölçülmeli.** Bir kapsama oranı bir kestirimdir ve Monte Carlo
+   hatası yanına yazılmadan "nominalde" ya da "ötekiyle aynı" denemez; 200
+   sette 0.955, ±0.015 ile 0.925'in de içindedir ve ikisi farklı cümledir.
 6. **Doğru bir sonuç, doğru olduğunun kanıtı değildir.** Bir hata girdiye bağlı
    olarak kaybolabilir ve kaybolduğu durumda doğru sonuç üretir. Bu yüzden bir
    davranış tek örnekle doğrulanmaz; hatanın görüneceği koşul ayrıca aranır.
